@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+html{
+  height: 100%;
+}
+
+/*Ant Library*/
+.ant-layout{
+  @apply h-full
+}
+
+@layer base {
+  :root {
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
+@layer components {
+  .app{
+    @apply h-full 
+  }
+  .title{
+    @apply text-[32px] 
+  }
+  .heading-1{
+    @apply text-[24px]
+  }
+  .folder-card{
+    @apply bg-gray-300 flex p-4 w-[14rem] rounded-xl justify-between items-center 
+  }
+  .folder-icon-div{
+    @apply flex items-center gap-4 font-semibold
+  }
+  .icon-white{
+    filter: brightness(0) invert(1);
+  }
+  .icon-black{
+    filter: brightness(0) ;
+  }
+  .overlay{
+    @apply bg-[#1f1f1f] fixed w-full h-full top-0 left-0
+  }
+  
+  .friends-share-checkbox:checked{
+    @apply border-[1px] border-gray-200
+  }
+  .primary-btn{
+    @apply bg-slate-200 flex flex-row gap-2 py-2 px-4 rounded-xl font-semibold
+  }
+  .alertDialogOverlay{
+    background-color: rgb(31 31 31 / 88%);
+    @apply fixed w-full h-full top-0 left-0 z-40
+  }
+  .lucide-panel-left{
+    @apply 
+  }
+  .text-sidebar-foreground{
+    background-color: #f8fafc !important;
+    z-index: 0;
+  }
+  .input-field{
+    @apply bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-400 appearance-none w-full 
+  }
+
+
+}
+/* HTML:  */
+/* HTML: */
+.loader {
+  width: 18px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid lightblue;
+  border-right-color: #7695FF;
+  animation: l2 1s infinite linear;
+}
+@keyframes l2 {to{transform: rotate(1turn)}}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  visibility: hidden;
+  -webkit-appearance: none;
+}
+.event-update-accrodion{
+  -ms-overflow-style: none;  /* For Internet Explorer 10+ */
+  scrollbar-width: none; 
+}

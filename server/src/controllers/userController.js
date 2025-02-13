@@ -1,0 +1,361 @@
+const User = require("../models/userModel")
+const bcrypt = require("bcrypt")
+const cookieParser = require("cookie-parser")
+const jwt = require('jsonwebtoken')
+const Notification = require("../models/notificationModel")
+
+const registerUser = async(req,res)=>{
+    
+    try{
+        const {userName, firstName, lastName, email, password} = req.body
+        const user = await User.findOne({email})
+        if(user){
+            return res.status(409).json({'message':'User Already Exists'})
+        }
+        const hashedPassword = await bcrypt.hash(password, 10)
+        const newUser = await User.create({userName, firstName, lastName, email, password:hashedPassword, refreshToken:""})
+        const userId = newUser._id
+        const accessToken = jwt.sign(
+            {
+               userId:newUser._id,
+               email
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '1h' }
+        );
+        const refreshToken = jwt.sign(
+            {   userId:newUser._id,
+                email},
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        );
+       await User.updateOne({_id:userId},{refreshToken})
+        res.cookie('jwt',refreshToken,{
+            httpOnly:true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+        res.status(201).json({'accessToken':accessToken,'message':"User Created SuccessFully"})
+    }catch(e){
+        return res.status(500).json({'message':e.message})
+    }
+}
+
+const loginUser = async(req,res)=>{
+    try{
+        const {email, password} = req.body
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(401).json({'message':"Email is not registered. Please Create an Account"})
+        }
+        const passwordMatch = await bcrypt.compare(password,user.password)
+        if(!passwordMatch){
+            return res.status(401).json({'message':"Incorrect Password"})
+        }
+        const accessToken = jwt.sign(
+            {
+                userId:user._id,
+                email
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        );
+        const refreshToken = jwt.sign(
+            {  
+                userId:user._id,
+                email
+             },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '30d' }
+        );
+        user.updateOne({email},{refreshToken})
+        res.cookie('jwt',refreshToken,{
+            httpOnly:true,
+            secure:true,
+            sameSite: 'None',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+       
+        return res.status(200).json({'accessToken':accessToken,"message":"Login SuccessFull"})
+    }catch(e){
+        return res.status(500).json({'message':e.message})
+    }
+ 
+}
+
+const getUserDetails = async(req,res)=>{
+    try{
+       
+        const userId = req.userId
+        const userDetails = await User.findOne({_id:userId}).select("profilePicture firstName lastName email")
+        if(!userDetails){
+            return req.status(404).json({status:"error", message:"User Not Found", data:null})
+        }
+        return res.status(200).json({status:"success", message:"User Details Fetched Successfully", data:userDetails})
+    }catch(e){
+         return res.status(500).json({status:"error", message:e.message, data:null})
+    }
+}
+
+const logoutUser = async(req,res)=>{
+    try{
+        const cookies = req.cookies;
+        if(!cookies?.jwt) return res.sendStatus(204)
+        const jwt = cookies.jwt;
+        const user = await User.findOne({jwt})
+        if(!user){
+            res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+            return res.sendStatus(204);
+        }
+        user.refreshToken = ""
+        await user.save()
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+        return res.sendStatus(204);
+    }catch(e){
+        return res.sendStatus(500).json({'message':e.message})
+    }
+   
+}
+
+const sendFriendRequest = async(req,res)=>{
+    try{
+      const {receiverId} = req.body;
+      const senderId = req.userId
+      const userInfos = await Promise.all([
+        User.findOne({_id:senderId}).select('firstName sentFriendRequests friends'),
+        User.findOne({_id:receiverId}).select('firstName lastName email profilePicture')
+      ])
+
+
+      const [senderInfo,receiverInfo] = userInfos
+
+     
+  
+      if(!receiverInfo){
+        return res.status(404).json({status:"error", message: "User not found", data:null });
+      }
+      
+
+      if(senderInfo.sentFriendRequests.includes(receiverId)){
+        return  res.status(400).json({status:"error", message:"Friend Request Already Sent", data:null})
+      }
+      
+      if(senderInfo.friends.includes(receiverId)){
+        return  res.status(400).json({status:"error",message:"Users are already Friends", data:null})
+      }
+     
+      await Promise.all([
+        User.updateOne({_id: senderId}, { $push: { sentFriendRequests: receiverId } }),
+        User.updateOne({_id: receiverId}, { $push: { pendingFriendRequests: senderId } }),
+      ])
+
+      const newRequest = {
+        _id:receiverId,
+        proiflePicture: receiverInfo.profilePicture,
+        firstName: receiverInfo.firstName,
+        lastName: receiverInfo.lastName,
+        email: receiverInfo.email
+
+      }
+
+         
+      const notificationObj = {
+        notification:`${senderInfo.firstName} sent you a friend Request`,
+        notificationType:"friendRequest",
+        receiverId:receiverId,
+        read:false,
+    }
+     
+       const notification =  await Notification.create(notificationObj)
+       const userUpdate = await User.updateOne({_id:receiverId},{$push:{notifications:notification._id}})
+       if(userUpdate.modifiedCount===0){
+        await Notification.delete({_id:notification._id})
+        return res.status(500).json({status:"error",message:"Unable to send Notification", data:null})
+       }
+
+      return res.status(201).json({status:"success",message:"Request Sent SuccessFully", data:newRequest})
+    }catch(e){
+      res.status(500).json({status:"error",message:e.message, data:null})
+    }
+   
+    
+}
+const getPendingFriendRequests = async(req,res)=>{
+    try{
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const userId = decoded.userId
+        const user = await User.findOne({_id:userId}).populate("pendingFriendRequests")
+        const friends = user.pendingFriendRequests;
+        const resArray = friends.map((friend) => {
+            return {
+              id: friend._id,
+              firstName: friend.firstName,
+              lastName: friend.lastName,
+              email: friend.email,
+               profilePicture: friend.profilePicture,
+            };
+          });
+        return res.status(200).json({message:"Pending Requests Fetched Successfully", data:resArray})
+
+        }catch(e){
+        return res.status(500).json({message:e.message})
+        }
+}
+const getSentFriendRequests = async(req,res)=>{
+    try{
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const userId = decoded.userId
+      
+        const user = await User.findOne({_id:userId}).populate("sentFriendRequests")
+        console.log(user)
+        const friends = user.sentFriendRequests;
+        const resArray = friends.map((friend) => {
+            return {
+              id: friend._id,
+              firstName: friend.firstName,
+              lastName: friend.lastName,
+              email: friend.email,
+               profilePicture: friend.profilePicture,
+            };
+          });
+        return res.status(200).json({message:"Sent Requests Fetched Successfully", data:resArray})
+
+        }catch(e){
+        return res.status(500).json({message:e.message})
+        }
+}
+const getFriends = async(req,res)=>{
+    try{
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const userId = decoded.userId
+
+        const user = await User.findOne({_id:userId}).populate("friends")
+        const friends = user.friends;
+        const resArray = friends.map((friend) => {
+            return {
+              id: friend._id,
+              firstName: friend.firstName,
+              lastName: friend.lastName,
+              email: friend.email,
+               profilePicture: friend.profilePicture,
+            };
+          });
+
+        return res.status(200).json({message:"Friend List Fetched Successfully", data: resArray})
+
+        }catch(e){
+        return res.status(500).json({message:e.message})
+        }
+}
+const cancelRequestSent = async(req,res)=>{
+    try{
+        const {receiverId} = req.body
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const userId = decoded.userId
+        const responseObj = await User.findOne({_id:userId}).select("sentFriendRequests")
+        if(!responseObj.sentFriendRequests.includes(receiverId)){
+            return res.status(400).json({message:"Cannot cancel the sent request"})
+        }
+        await Promise.all([
+            User.updateOne({ _id: userId }, { $pull: { sentFriendRequests: receiverId } }),
+            User.updateOne({ _id: receiverId }, { $pull: { pendingFriendRequests: userId } })
+        ]);
+       return res.status(200).json({message:"Request Cancelled Successfully"})
+
+    }catch(e){
+        return res.status(500).json({message:e.message})
+    }
+}
+
+const respondFriendRequest = async(req,res)=>{
+    try{
+        const {senderId, response} = req.body
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const receiverId = decoded.userId
+        const responseObj = await User.findOne({_id:receiverId}).select("pendingFriendRequests friends")
+        const pendingFriendRequests = responseObj.pendingFriendRequests
+        const friends = responseObj.friends
+        if(friends.includes(senderId)){
+            return res.status(400).json({message:"Users are already friends"})
+        }
+        if(!pendingFriendRequests.includes(senderId)){
+            return res.status(400).json({message:"User hasn't sent friend request"})
+        }
+    
+        if(response==="Accept"){
+            await Promise.all([
+                 User.updateOne({_id:receiverId},{
+                    $pull:{pendingFriendRequests:senderId}
+                }),
+                 User.updateOne({_id:receiverId},{
+                    $push:{friends:senderId}
+                }),
+                 User.updateOne({_id:senderId},{
+                    $pull:{sentFriendRequests:receiverId}
+                }),
+                 User.updateOne({_id:senderId},{
+                    $push:{friends:receiverId}
+                }),
+            ])
+            return res.status(200).json({message:"Request Accepted Successfully"})
+        }else if(response==="Reject"){
+            Promise.all([
+                 User.updateOne({_id:receiverId},{
+                    $pull:{pendingFriendRequests:senderId}
+                }),
+                 User.updateOne({_id:senderId},{
+                    $pull:{sentFriendRequests:receiverId}
+                }),
+            ])
+            return res.status(200).json({message:"Request Rejected Successfully"})
+        }else{
+            return res.status(400).json({message:"Invalid Action"})
+        }
+    }catch(e){
+        return res.status(500).json({message:e.message})
+    }
+}
+
+const updateUserInfo = async(req,res)=>{
+    try{
+        const {changedFields} = req.body;
+        if(Object.keys(changedFields).length===0){
+            return res.status(401).json({status:"error",message:"Atleat one field is required to update!", data:null})
+        }
+        if(changedFields.email){
+            return res.status(401).json({status:"error",message:"Email cannot be updated", data:null})
+        }
+        
+        const authHeader = req.headers.authorization || req.headers.Authorization
+        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
+        const accessToken = authHeader.split(" ")[1]
+        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
+        const userId = decoded.userId
+        const update = await User.updateOne({_id:userId},{$set:changedFields})
+     
+        if(update.modifiedCount === 0){
+            return res.status(404).json({status:"error",message:"User not found", data:null})
+        }
+        return res.status(200).json({status:"success",message:"UserInfo Updated Successfully", data:changedFields})
+    }catch(e){
+        return res.status(500).json({status:"success", message:e.message, data:null})
+    }
+  
+}
+module.exports = {registerUser, loginUser, logoutUser,sendFriendRequest,getPendingFriendRequests,getSentFriendRequests,getFriends,cancelRequestSent,respondFriendRequest, updateUserInfo, getUserDetails}

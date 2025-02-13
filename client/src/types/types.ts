@@ -1,0 +1,111 @@
+export interface navOptions {
+    id:number,
+    name:string,
+    route: string,
+    icon:string,
+}
+export interface Folder{
+    folderId: string | null,
+    folderName: string,
+    folderRoute:string,
+}
+export interface Note{
+    noteName:string,
+    noteId:string,
+    contentType:string,
+    downloadUrl: string,
+}
+export interface NoteResponse{
+    noteName: string,
+    folderId: FormDataEntryValue,
+    userId:FormDataEntryValue,
+    contentType: string,
+    downloadUrl: string,
+}
+export interface Metadata {
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    uploadDate: string;
+}
+export interface FolderRequestBody {
+    user: string | null;
+    inputValue: string;
+    folders: Folder[];
+    folderId: number;
+}
+export interface FolderRequestBody {
+    user:string  | null,
+    file:File,
+    folderName:string
+}
+export interface ActiveFile{
+    fileIcon:string,
+    fileName:string,
+    fileUri:string,
+    contentType:string
+}
+export interface FileTags{
+    iframe: string[];
+    img: string[]; 
+    video:string[]
+}
+export interface UploadList{
+    fileId: number,
+    fileName: string,
+    contentType: string
+}
+
+export interface User{
+    _id:string,
+    profilePicture:string,
+    userName:string,
+    firstName:string,
+    lastName:string,
+    email:string
+    [key: string]: any;
+}
+
+export interface SharedNotes{
+    _id:string,
+    noteName: string,
+    contentType:  string,
+    downloadUrl: string,
+    sharedBy: string,
+    receivedBy: string
+}
+
+export interface NoteSharing{
+
+    noteName: string,
+    contentType:  string,
+    downloadUrl: string,
+    sharedBy: string,
+    receivedBy: string
+}
+
+export interface Event{
+    id: string,
+    title:string,
+    start:string,
+    end:string,
+    description: string,
+}
+
+export interface SocketMember{
+    userId: string,
+    profilePicture: string,
+    firstName:  string,
+    lastName: string,
+    socketId: string,
+    isOwner: boolean,
+}  
+
+
+export interface Notification{
+    _id:string,
+    notification:string,
+    notificationType:string,
+    read:boolean,
+    createdAt:string
+}
