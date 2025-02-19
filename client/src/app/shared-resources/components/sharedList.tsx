@@ -1,16 +1,16 @@
 'use client'
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { getSharedNotes } from "@/actions/folderAction"
+import { getSharedNotes } from "@/actions/SharedNotes/sharedNoteAction"
 import { SharedNotes } from "@/types/types"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import FileDisplay from "@/app/_components/fileDisplay"
-
+import { useNoteContext } from "@/context/notesContext"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function SharedList(){
   const [sharedNotes, setSharedNotes] = useState<SharedNotes[] | null>()
-  const {fileIcons,setActiveFile, activeFile} = useAppContext()
+  const {fileIcons,setActiveFile, activeFile} = useNoteContext()
    useEffect(()=>{
     const fetchSharedNotes = async()=>{
       const response = await getSharedNotes()

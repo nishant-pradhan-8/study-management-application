@@ -1,9 +1,14 @@
 import Image from "next/image"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useEffect } from "react"
+import { useNoteContext } from "@/context/notesContext"
+import useUploadFile from "@/hooks/useUploadFile"
 export default function UploadProgress(){
-    const {notes, uploadList,fileIcons, isUploading, errorDuringUpload} = useAppContext()
-   
+    const {notes, uploadList,fileIcons} = useNoteContext()
+    const {isUploading, errorDuringUpload} = useNoteContext()
+    useEffect(()=>{
+        console.log(isUploading)
+    },[isUploading])
     return(
         <div className={`${uploadList && uploadList?.length>0?"":"hidden"} bg-slate-200 absolute p-4 right-0 w-[20rem] top-[3rem] rounded-xl flex flex-col gap-2 z-50`}>
            {
@@ -16,9 +21,14 @@ export default function UploadProgress(){
                             </p>
                         </div>
                             </div>
-                           {
-                            isUploading && fileIcons[uploads.contentType]?(<div className="loader"></div>):  fileIcons[uploads.contentType] && !errorDuringUpload? <Image alt="ok" src="/images/ok.svg" width={20} height={20} />:<Image alt="error" src="/images/error.svg" width={20} height={20} />
-                           } 
+                         {/* Use isUploading directly */}
+                    {isUploading ? (
+                        <div className="loader"></div> // Show loader while uploading
+                    ) : fileIcons[uploads.contentType] && !errorDuringUpload ? (
+                        <Image alt="ok" src="/images/ok.svg" width={20} height={20} />
+                    ) : (
+                        <Image alt="error" src="/images/error.svg" width={20} height={20} />
+                    )}
 
                         </div>
                     

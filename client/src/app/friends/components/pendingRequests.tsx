@@ -2,24 +2,26 @@
 
 import { useState, useEffect } from "react"
 
-import { getPendingRequests } from "@/actions/folderAction"
+import { getPendingRequests } from "@/actions/users/usersAction"
 import LoadingSkeleton from "./loadingSkeleton"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function PendingRequests(){
-   const {pendingRequests, setPendingRequests} = useAppContext()
+   const {pendingRequests, setPendingRequests} = useUserContext()
    useEffect(()=>{
     if(!pendingRequests) {
-      
       const fetchPendingRequests = async()=>{
         const friends = await getPendingRequests()
+        if(!friends.data){
+          return console.log("Failed to Fetch Pending Requests")
+        }
         setPendingRequests(friends)
         console.log(friends)
       }
       fetchPendingRequests()
     }
-    },[pendingRequests])
+    },[])
     return(
         <div className="flex-1 border-[1px] border-gray-300 p-2 px-4 rounded-xl ">
                 <h3 className="text-lg font-semibold ">Pending Requests</h3>

@@ -1,11 +1,16 @@
 import Image from "next/image"
-import { useAppContext } from "@/context/context"
-import { deleteNote } from "@/actions/folderAction"
+import { deleteNote } from "@/actions/notes/noteAction"
 import { useEffect } from "react"
 import { Note } from "@/types/types"
 import ShareFile from "./shareFile"
+import { useNoteContext } from "@/context/notesContext"
+import { useFolderContext } from "@/context/folderContext"
+import { useUserContext } from "@/context/userContext"
 export default function FileMenu({note}:{note:Note}){
-    const {fileMenuOpenId, user, activeFolder, setNotes,notes, setFileMenuOpenId, setSelectedFileMenu, selectedFileMenu, setAlertDialogOpen } = useAppContext()
+    const {fileMenuOpenId, setNotes,notes, setFileMenuOpenId, setSelectedFileMenu, selectedFileMenu,  } = useNoteContext()
+    const {user, setAlertDialogOpen} = useUserContext()
+    const {activeFolder} = useFolderContext()
+
     const fileMenu = [
         {
             id:0,

@@ -1,24 +1,27 @@
 'use client'
 import Image from "next/image"
 import { Suspense, useEffect } from "react"
-import { useAppContext } from "@/context/context"
-import { getFriendList } from "@/actions/folderAction"
+import { useUserContext } from "@/context/userContext"
+import { getFriendList } from "@/actions/users/usersAction"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function FriendsList(){
-  const {friends, setFriends} = useAppContext()
+  const {friends, setFriends} = useUserContext()
   useEffect(()=>{
   
     if(!friends){
       const fetchFriends = async()=>{
         const friends = await getFriendList()
+        if(!friends.data){
+          return console.log("unable to get Friends List")
+        }
         setFriends(friends)
       }
       fetchFriends()
     }
      
   
-  },[friends])
+  },[])
     return(
   
   <div className="border-[1px] border-gray-300 p-4 rounded-xl mt-6 ">

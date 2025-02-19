@@ -9,9 +9,13 @@ const folderSchema = mongoose.Schema({
         ref: 'User', 
         required: true
     },
-    lastViewed:{
-        type:Date,
-        default: Date.now
+    notes:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Note'
+    }],
+    accessedTimes:{
+        type:Number,
+        default: 0
     },
 },
     

@@ -1,13 +1,15 @@
 'use client'
 import Image from "next/image"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import React from "react"
-import { UploadNotes } from "@/actions/folderAction"
+import { useNoteContext } from "@/context/notesContext"
 import UploadProgress from "./uploadProgress"
-
+import useUploadFile from "@/hooks/useUploadFile"
 export default function UploadButton({folderId}:{folderId:string}){
-    const {getInputProps,open, isUploading} = useAppContext()
-    
+    const {getInputProps,open} = useNoteContext()
+   const {isUploading} = useNoteContext()
+
+
     return(
         <div className="relative">
 

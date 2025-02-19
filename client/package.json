@@ -26,6 +26,7 @@
     "@schedule-x/react": "^2.16.1",
     "@schedule-x/theme-default": "^2.16.1",
     "antd": "^5.23.0",
+    "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

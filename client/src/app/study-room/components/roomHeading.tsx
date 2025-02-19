@@ -1,11 +1,11 @@
 'use client'
-import { useAppContext } from "@/context/context";
+import { useUserContext } from "@/context/userContext";
 import JoinRoom from "./joinRoomDialog";
 import { SocketMember } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 export default function RoomHeading(){
-   const {setAlertDialogOpen, setJoinRoomAlertDialogOpen, joinRoomAlertDialogOpen, socket, user, openMedia, setOwnStream} = useAppContext()
+   const {setAlertDialogOpen, setJoinRoomAlertDialogOpen, joinRoomAlertDialogOpen, socket, user, openMedia, setOwnStream} = useUserContext()
    const router = useRouter()
    const joinRoom = async ()=>{
       setAlertDialogOpen(true)

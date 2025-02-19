@@ -1,24 +1,26 @@
 'use client'
 
 import { useState, useEffect } from "react"
-
-import { getSentRequests } from "@/actions/folderAction"
+import { getSentRequests } from "@/actions/users/usersAction"
 import LoadingSkeleton from "./loadingSkeleton"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function SentRequests(){
-  const{sentRequests, setSentRequests} = useAppContext()
+  const{sentRequests, setSentRequests} = useUserContext()
    useEffect(()=>{
     if(!sentRequests){
       const fetchSentRequests = async()=>{
         const sentRequests = await getSentRequests()
-        setSentRequests(sentRequests)
+        if(!sentRequests.data){
+          return console.log("Unable to Fetch Sent Requests")
+        }
+        setSentRequests(sentRequests.data)
       }
       fetchSentRequests()
     }
        
-      },[sentRequests])
+      },[])
   return(
          <div className="flex-1 border-[1px] border-gray-300 p-2 px-4 rounded-xl ">
                  <h3 className="text-lg font-semibold ">Sent Requests</h3>

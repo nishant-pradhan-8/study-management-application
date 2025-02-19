@@ -1,16 +1,17 @@
 'use client'
 import { useEffect, useState } from "react"
-import { sendFriendRequest } from "@/actions/folderAction"
-import { useAppContext } from "@/context/context"
+import { sendFriendRequest } from "@/actions/users/usersAction"
+import { useUserContext } from "@/context/userContext"
 export default function FriendsHeading(){
     const [receiverId, setReceiverId] = useState<string>("")
-    const {setSentRequests, sentRequests} = useAppContext()
+    const {setSentRequests, sentRequests} = useUserContext()
     const handleFriendRequest = async () => {
         console.log(receiverId)
         const sentData = await sendFriendRequest(receiverId);
-        if (sentData.data) {
-          setSentRequests((prev) => [...(prev || []), sentData.data]);
+        if (!sentData.data) {
+          return console.log("unable to send friend request")
         }
+        setSentRequests((prev) => [...(prev || []), sentData.data]);
       };
       
     return(

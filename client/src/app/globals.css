@@ -103,6 +103,9 @@ html{
     @apply bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-400 appearance-none w-full 
   }
 
+  .dp-div{
+    transform: translateY();
+  }
 
 }
 /* HTML:  */
@@ -124,3 +127,19 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   -ms-overflow-style: none;  /* For Internet Explorer 10+ */
   scrollbar-width: none; 
 }
+
+/* HTML:  */
+.Delete-Loader {
+  height: 4px;
+  width: 130px;
+  --c:no-repeat linear-gradient(#6100ee 0 0);
+  background: var(--c),var(--c),#d7b8fc;
+  background-size: 60% 100%;
+  animation: l16 3s infinite;
+}
+@keyframes l16 {
+  0%   {background-position:-150% 0,-150% 0}
+  66%  {background-position: 250% 0,-150% 0}
+  100% {background-position: 250% 0, 250% 0}
+}
+

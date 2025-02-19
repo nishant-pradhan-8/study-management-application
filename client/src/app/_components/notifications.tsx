@@ -1,13 +1,13 @@
 'use client'
 import Image from "next/image"
 import { useEffect, useState, useRef } from "react"
-import { useAppContext } from "@/context/context"
-import { getNotification } from "@/actions/folderAction"
-import AvatarWithText from "./defaultLoader"
+import { useUserContext } from "@/context/userContext"
+import AvatarWithText from "./avatarAndText"
 import Link from "next/link"
+import NotificationSkeleton from "./notificationSkeleton"
 export default function Notifications(){
     const notificationDialogRef= useRef<HTMLDivElement | null>(null)
-    const {notificationDialogOpen, setNotificationDialogOpen, setNotifications, notifications} = useAppContext()
+    const {notificationDialogOpen, setNotificationDialogOpen, setNotifications, notifications} = useUserContext()
     const handleDialogClose = (e:MouseEvent)=>{
         if(notificationDialogRef && notificationDialogOpen && notificationDialogRef.current && !notificationDialogRef.current.contains(e.target as Node)){
             setNotificationDialogOpen(false)
@@ -27,6 +27,7 @@ export default function Notifications(){
         <div ref={notificationDialogRef} className="absolute w-[18rem] top-[3.5rem] z-[50] bg-white border-[1px] border-gray-400 right-[3rem] rounded-xl">
             <ul>
                 {
+                  
                     notifications?
                     notifications.length>0?
                       (notifications.map((notification)=>(
@@ -35,8 +36,8 @@ export default function Notifications(){
                          <Image src={notificationIcon[notification.notificationType]}  width={20} height={20} alt="friends-logo" />
                          {notification.notification}
                          </Link> </li>  ))):
-                        <p>No notes To Show</p>
-                        :(<AvatarWithText />)
+                        <p className="p-4 font-semibold">No Notifications To Show . . . .</p>
+                        :(<NotificationSkeleton />)
                  
                 }
             </ul>

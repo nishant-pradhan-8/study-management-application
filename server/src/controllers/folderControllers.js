@@ -3,31 +3,27 @@ const Note = require("../models/noteModel")
 const jwt = require("jsonwebtoken")
 const { GridFSBucket } = require("mongodb");
 const mongoose = require("mongoose")
+
+
 const showFolders = async(req,res)=>{
     try{
-        const authHeader =  req.headers.authorization || req.headers.Authroization
-        const accessToken = authHeader.split(" ")[1]
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const folders = await Folder.find({userId:decoded.userId})
+        const userId = req.userId
+        const folders = await Folder.find({userId:userId}).select("folderName createdAt")
         return res.json({status:"success",message:"Folders Fetched Sucessfully", data:folders})
     }catch(e){
-        return res.status(500).json({status:"success",message:"Server Error", data:null})
+        return res.status(500).json({status:"error",message:"Server Error", data:null})
     }
 }
 
 const createFolder = async(req,res)=>{
     try{
-        const authHeader = req.headers.authorization || req.headers.Authroization
-        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
         const {folderName} = req.body
-        const accessToken = authHeader.split(" ")[1]
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const userId = decoded.userId
+        const userId = req.userId
         const newFolder = await Folder.create({folderName,userId})
-        return  res.status(200).json({'message':"Folder Created Sucessfully","data":newFolder})
+        return  res.status(200).json({status:"success", 'message':"Folder Created Sucessfully","data":newFolder})
         
     }catch(e){
-        return res.status(500).json({'message':e.message})
+        return res.status(500).json({status:"error",'message':e.message, data:null})
     }
 }
 
@@ -38,7 +34,7 @@ const showFolderData = async(req,res)=>{
     const files = await Note.find({folderId});
    
     if (files.length === 0) {
-      return res.status(200).json({status:"success", message: "No notes found for this folder.", data:null });
+      return res.status(200).json({status:"success", message: "No notes found for this folder.", data:files });
     }
 
     const fileData = files.map(file => ({
@@ -47,12 +43,68 @@ const showFolderData = async(req,res)=>{
       contentType: file.contentType,
       downloadUrl: file.downloadUrl
     }));
+    console.log(fileData,'fd')
   
-    res.status(200).json({message:"Files Fetched Sucessfully", notes: fileData });
+    res.status(200).json({status:"success", message:"Files Fetched Sucessfully", data: fileData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ status:"success",  message: "Internal Server Error", data:null });
   }
    
 }
-module.exports = {createFolder, showFolders, showFolderData}
+const deleteFolder = async (req, res) => {
+  try {
+    const { folderId } = req.body;
+    const userId = req.userId;
+
+    const deletedFolder = await Folder.findOneAndDelete({ _id: folderId, userId }); 
+
+    if (deletedFolder.deletedCount === 0) {
+      return res.status(404).json({ status: 'error', message: 'Folder not Found', data: null });
+    }
+
+    const noteIds = deletedFolder.notes;
+
+    if (noteIds && noteIds.length > 0) {
+       await Note.deleteMany({ _id: { $in: noteIds } });
+    }
+
+    return res.status(204).json({ status: 'success', message: 'Folder Deleted Successfully', data: null });
+
+  } catch (e) {
+    console.error("Error deleting folder:", e); 
+    return res.status(500).json({ status: 'error', message: 'Internal Server Error', data: null });
+  }
+};
+
+
+const countFolderAccess = async(req,res)=>{
+  try{
+    const {folderId} = req.body;
+    const userId = req.userId
+    const frequentlyAccessedFolders = await Folder.updateOne({_id:folderId,userId},{$inc:{accessedTimes:1}})
+    if(frequentlyAccessedFolders.modifiedCount === 0){
+      return res.status(404).json({status:"error", 'message':"Folder Not Found","data":null})
+    } 
+    return  res.status(200).json({status:"success", 'message':"Accessed Count Updated Successfully","data":null})
+  
+  }catch(e){
+    return  res.status(500).json({status:"error", 'message':"Internal Server Errors","data":null})
+  
+  }
+
+}
+
+const getQuickAccessFolders = async(req,res)=>{
+  try{
+    const userId = req.userId
+    const quickAccessFolders = await Folder.find({userId,accessedTimes:{$gte:1}}).sort({accessedTimes:-1}).limit(5).select("folderName createdAt")
+    return  res.status(200).json({status:"success", 'message':"Quick Accessed Folders Fetched Sucessfully","data":quickAccessFolders})
+  }catch(e){
+    return  res.status(500).json({status:"error", 'message':e.message,"data":null})
+  }
+ 
+}
+
+
+module.exports = {createFolder, showFolders, showFolderData,countFolderAccess, getQuickAccessFolders, deleteFolder }

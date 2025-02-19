@@ -84,19 +84,34 @@ const loginUser = async(req,res)=>{
  
 }
 
-const getUserDetails = async(req,res)=>{
-    try{
-       
-        const userId = req.userId
-        const userDetails = await User.findOne({_id:userId}).select("profilePicture firstName lastName email")
-        if(!userDetails){
-            return req.status(404).json({status:"error", message:"User Not Found", data:null})
+const getUserDetails = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const userDetails = await User.findOne({ _id: userId }).select("profilePicture firstName lastName email");
+
+        if (!userDetails) {
+            return res.status(404).json({
+                status:"error",
+                message: "User not found",
+                data: null,
+            });
         }
-        return res.status(200).json({status:"success", message:"User Details Fetched Successfully", data:userDetails})
-    }catch(e){
-         return res.status(500).json({status:"error", message:e.message, data:null})
+
+        return res.status(200).json({
+            status:"success",
+            message: "User details fetched successfully",
+            data: userDetails,
+        });
+    } catch (e) {
+        console.error("Error fetching user details:", e);
+        return res.status(500).json({
+            status:"error",
+            message: "Something went wrong. Please try again later.",
+            data: null, 
+        });
     }
-}
+};
+
 
 const logoutUser = async(req,res)=>{
     try{
@@ -127,11 +142,8 @@ const sendFriendRequest = async(req,res)=>{
         User.findOne({_id:receiverId}).select('firstName lastName email profilePicture')
       ])
 
-
       const [senderInfo,receiverInfo] = userInfos
 
-     
-  
       if(!receiverInfo){
         return res.status(404).json({status:"error", message: "User not found", data:null });
       }
@@ -156,10 +168,8 @@ const sendFriendRequest = async(req,res)=>{
         firstName: receiverInfo.firstName,
         lastName: receiverInfo.lastName,
         email: receiverInfo.email
-
       }
 
-         
       const notificationObj = {
         notification:`${senderInfo.firstName} sent you a friend Request`,
         notificationType:"friendRequest",
@@ -174,20 +184,18 @@ const sendFriendRequest = async(req,res)=>{
         return res.status(500).json({status:"error",message:"Unable to send Notification", data:null})
        }
 
-      return res.status(201).json({status:"success",message:"Request Sent SuccessFully", data:newRequest})
+      return res.status(200).json({status:"success",message:"Request Sent SuccessFully", data:newRequest})
     }catch(e){
       res.status(500).json({status:"error",message:e.message, data:null})
     }
    
     
 }
+
 const getPendingFriendRequests = async(req,res)=>{
     try{
-        const authHeader = req.headers.authorization || req.headers.Authorization
-        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
-        const accessToken = authHeader.split(" ")[1]
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const userId = decoded.userId
+     
+        const userId = req.userId
         const user = await User.findOne({_id:userId}).populate("pendingFriendRequests")
         const friends = user.pendingFriendRequests;
         const resArray = friends.map((friend) => {
@@ -205,14 +213,11 @@ const getPendingFriendRequests = async(req,res)=>{
         return res.status(500).json({message:e.message})
         }
 }
+
 const getSentFriendRequests = async(req,res)=>{
     try{
-        const authHeader = req.headers.authorization || req.headers.Authorization
-        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
-        const accessToken = authHeader.split(" ")[1]
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const userId = decoded.userId
-      
+       
+        const userId = req.userId
         const user = await User.findOne({_id:userId}).populate("sentFriendRequests")
         console.log(user)
         const friends = user.sentFriendRequests;
@@ -231,13 +236,11 @@ const getSentFriendRequests = async(req,res)=>{
         return res.status(500).json({message:e.message})
         }
 }
+
 const getFriends = async(req,res)=>{
     try{
-        const authHeader = req.headers.authorization || req.headers.Authorization
-        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
-        const accessToken = authHeader.split(" ")[1]
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const userId = decoded.userId
+        
+        const userId = req.userId
 
         const user = await User.findOne({_id:userId}).populate("friends")
         const friends = user.friends;
@@ -257,6 +260,7 @@ const getFriends = async(req,res)=>{
         return res.status(500).json({message:e.message})
         }
 }
+
 const cancelRequestSent = async(req,res)=>{
     try{
         const {receiverId} = req.body
@@ -352,10 +356,12 @@ const updateUserInfo = async(req,res)=>{
         if(update.modifiedCount === 0){
             return res.status(404).json({status:"error",message:"User not found", data:null})
         }
-        return res.status(200).json({status:"success",message:"UserInfo Updated Successfully", data:changedFields})
+        return res.status(200).json({status:"success",message:"UserInfo Updated Successfully", data:null})
     }catch(e){
-        return res.status(500).json({status:"success", message:e.message, data:null})
+        console.log(e.messaage)
+        return res.status(500).json({status:"error", message:"Something went wrong!", data:null})
     }
   
 }
+
 module.exports = {registerUser, loginUser, logoutUser,sendFriendRequest,getPendingFriendRequests,getSentFriendRequests,getFriends,cancelRequestSent,respondFriendRequest, updateUserInfo, getUserDetails}

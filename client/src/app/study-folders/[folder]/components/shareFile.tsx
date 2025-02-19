@@ -1,16 +1,18 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useAppContext } from '@/context/context';
+import { useUserContext } from '@/context/userContext';
 import { Note } from '@/types/types';
-import { shareNotes } from '@/actions/folderAction';
+import { shareNotes } from '@/actions/SharedNotes/sharedNoteAction';
 import LoadingSkeleton from '@/app/friends/components/loadingSkeleton';
 import Image from 'next/image';
-import { getFriendList } from '@/actions/folderAction';
-import { Friends } from '@/types/types';
+import { getFriendList } from '@/actions/users/usersAction';
+import { User } from '@/types/types';
+import { useNoteContext } from '@/context/notesContext';
 function ShareFile({ note }: { note: Note }) {
-  const { shareList, setShareList, friends, selectedFileMenu, setSelectedFileMenu, setFriends, setFileMenuOpenId, user, setAlertDialogOpen } = useAppContext();
+  const { shareList, setShareList, friends,  setFriends, user, setAlertDialogOpen } = useUserContext();
+  const{selectedFileMenu, setSelectedFileMenu, setFileMenuOpenId} = useNoteContext()
   const [isSharing, setIsSharing] = useState(false)
-  const [searchResults, setSearchResults] = useState<Friends[]>([])
+  const [searchResults, setSearchResults] = useState<User[]>([])
   const [searchKeyword, setSearchKeyword] = useState<string>("")
   const handleFriendsSelection = (friendId: string) => {
     if (shareList?.includes(friendId)) {
@@ -29,8 +31,11 @@ function ShareFile({ note }: { note: Note }) {
       if(!friends){
         const fetchFriends = async()=>{
           const friends = await getFriendList()
-          setFriends(friends)
-          console.log(friends)
+          if(friends.data){
+            setFriends(friends)
+            console.log(friends)
+          }
+        
         }
         
         fetchFriends()
@@ -39,9 +44,7 @@ function ShareFile({ note }: { note: Note }) {
     },[friends])
 
   const handleShareNote = async()=>{
-    
     await shareNotes(shareList, note, user)
-  
   }
 
   const handleAlertDialogClose = ()=>{
@@ -51,7 +54,7 @@ function ShareFile({ note }: { note: Note }) {
   }
   const handleFriendsSearch = (e:React.ChangeEvent<HTMLInputElement>)=>{
     const searchKeyword = e.target.value.trim().toLowerCase().replace(/[^\w\s]/gi, '');
-    const results: Friends[] = friends?.filter((friend) =>
+    const results:User[] = friends?.filter((friend) =>
         friend.firstName.toLowerCase().includes(searchKeyword) ||
         friend.lastName.toLowerCase().includes(searchKeyword)
       ) ?? [];

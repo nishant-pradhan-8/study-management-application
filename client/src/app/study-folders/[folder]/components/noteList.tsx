@@ -1,62 +1,59 @@
 'use client'
-import { useAppContext } from "@/context/context";
-import { getNotes } from "@/actions/folderAction"
+import { useUserContext } from "@/context/userContext";
+import { getNotes } from "@/actions/notes/noteAction"
 import Image from "next/image"
 import { Folder } from "@/types/types";
 import { Note } from "@/types/types";
 import { useEffect} from "react";
-import { getFile } from "@/actions/folderAction";
+
 import FileMenu from "./fileMenu";
 import FileDisplay from "../../../_components/fileDisplay";
-import ShareFile from "./shareFile";
-import AlertDialogOverlay from "@/app/_components/alertDialogOverlay";
+import { useState } from "react";
+import { useNoteContext } from "@/context/notesContext";
+import { useFolderContext } from "@/context/folderContext";
+import useViewFile from "@/hooks/useViewFile";
 export default  function NoteList({folderRoute}:{folderRoute:string}){
-    const {folders,notes, setNotes, displayFile, setDisplayFile, fileIcons, activeFile, setActiveFile, getRootProps, setFileMenuOpenId, fileMenuOpenId, setActiveFolder,selectedFileMenu} = useAppContext()
-   const selectedFolder:Folder[] = folders.filter(folder=>folder.folderRoute===folderRoute)
-   const folderId:string | null = selectedFolder[0].folderId;
-
-   if(!folderId){
-    return <p>Unable to Show Notes</p>
-   }
+    const {notes, setNotes, displayFile, setDisplayFile, fileIcons, activeFile, setActiveFile, getRootProps, setFileMenuOpenId, fileMenuOpenId,selectedFileMenu} = useNoteContext()
+    const {folders, setActiveFolder,} = useFolderContext()
+    const [selectedFolderId, setSelectedFolderId] = useState<string | null>()
+    const {handleFileOpen} = useViewFile(setActiveFile,fileIcons)
+   useEffect(()=>{
+    if(folderRoute){
+      const selectedFolder = folders && folders.filter(folder=>folder.folderRoute===folderRoute)
+      const folderId = selectedFolder && selectedFolder[0]._id
+      setSelectedFolderId(folderId)
+    }
+    
+   },[folders])
 
    useEffect(()=>{
-     const fetchNotes = async()=>{
-        const notes:Note[]= await getNotes(folderId) || []
-        setActiveFolder(folderId)
-        setNotes(notes)
+    console.log('sfd', selectedFolderId)
+    if(selectedFolderId){
+      const fetchNotes = async()=>{
+        const res = await getNotes(selectedFolderId)
+        if(!res.data){
+         return console.log("Unable to fetch Notes")
+        }
+        setActiveFolder(selectedFolderId)
+        setNotes(res.data)
      }
      fetchNotes()
-   },[folderId])
+    }
+   
+   },[selectedFolderId])
   
  
    const handleFileMenuOpen = (noteId:string)=>{
-    
       setFileMenuOpenId((prevId) => (prevId === noteId ? null : noteId));
-    
-    
    }
    
-   const handleFileOpen = async(note:Note)=>{
-    setActiveFile({fileIcon:fileIcons[note.contentType],fileName:note.noteName,fileUri:note.downloadUrl, contentType:note.contentType})
-    console.log(note.noteId)
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/note/updateLastViewed`,{
-     method:"PATCH",
-     headers:{
-       Accept:"application/json",
-       "Content-Type": "application/json",
-       "Authorization":`Bearer ${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`
-     },
-     body:JSON.stringify({noteId: note.noteId})
-   })
-   }
-   
+ 
    
 
     return(
         <div   {...getRootProps()} className="flex flex-col mt-4">
-           { activeFile && <FileDisplay />
-         } 
-            {  notes.length!==0?
+          
+            {notes && notes.length!==0?
                 notes.map((note:Note)=>{
                   return <div   className="flex  flex-row first:border-t-[1px] items-center justify-between font-semibold border-b-[1px] border-gray-400 py-4 w-full" key={note.noteId}>
                     <a onClick={()=>handleFileOpen(note)} className="flex flex-row gap-2 w-full items-center cursor-pointer" >

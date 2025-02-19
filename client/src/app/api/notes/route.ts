@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDownloadURL, ref, StorageReference, } from "firebase/storage";
 import { storage } from "@/lib/firebase"
-import { getCurrentDate } from "@/lib/utils";
+import { getCurrentDate } from "@/utils/utils";
 import { uploadBytes } from "firebase/storage";
 import { NoteResponse } from "@/types/types";
 import { deleteObject } from "firebase/storage";
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   
       if (!userId || !folderId) {
         return NextResponse.json(
-          { error: "Missing required userId or folderId" },
+          {status:"error", error: "Missing required userId or folderId", data:null },
           { status: 400 }
         );
       }
@@ -51,14 +51,14 @@ export async function POST(request: Request) {
           } catch (error) {
            
             return NextResponse.json(
-              { error: `Failed to upload file "${file.name}". Please try again.`, data:[] },
+              {status:"error", error: `Failed to upload file "${file.name}". Please try again.`, data:null },
               { status: 500 }
             );
           }
         }
       }
       return NextResponse.json(
-        { message: "File Uploaded to Firebase Sucessfullly", data:notes },
+        {status:"success", message: "File Uploaded to Firebase Sucessfullly", data:notes },
         { status: 200 }
       );
     
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         console.error("Unhandled error in POST handler:", errorMessage);
   
       return new Response(
-        JSON.stringify({ error: errorMessage, data:[] }),
+        JSON.stringify({status:"error", error: errorMessage, data:null }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -87,14 +87,14 @@ export async function DELETE(request:Request){
     const storageRef: StorageReference = ref(storage, `Students/${userId}/${folderId}/${fileName}`);
     await deleteObject(storageRef);
     return NextResponse.json(
-      { message: "File Deleted Successfully in Firebase" },
+      {status:"success", message: "File Deleted Successfully in Firebase", data:null },
       { status: 200 }
     );
 
   } catch (e:any) {
     console.error("Error deleting the file:", e);
     return NextResponse.json(
-      { message: e.message },
+      {status:"error",  message: e.message, data:null },
       { status: 500 }
     );
   }

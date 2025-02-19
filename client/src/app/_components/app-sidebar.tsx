@@ -1,22 +1,24 @@
 "use client"
 import type { navOptions } from "@/types/types"
+import useCreateFolder from "@/hooks/useViewFile";
 import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useEffect } from "react"
-import { getUserDetails } from "@/actions/folderAction"
+import { getUserDetails } from "@/actions/users/usersAction"
 import Link from "next/link"
-import { getNotification } from "@/actions/folderAction"
+import { getNotification } from "@/actions/notifications/notificationAction"
 
+import DeletingProcess from "./deletingProcess";
+import { useFolderContext } from "@/context/folderContext";
 export function AppSidebar() {
   const navOptions:navOptions[] = [
     {
@@ -56,18 +58,19 @@ export function AppSidebar() {
       icon: '/images/studyRoom.svg'
     }
   ]
-
-  const {setUser,user, notifications, setNotifications} = useAppContext()
+  const {setUser,user, notifications, setNotifications} = useUserContext()
+  const {isDeleting} = useFolderContext()
    useEffect(()=>{
     
     if(!user){
-      console.log(user)
+      
       const fetchUserDetails =async()=>{
         const res = await getUserDetails()
+      
         if(!res.data){
-          return
+          return console.log("Fetching User Data Failed")
         }
-        console.log(res.data)
+       
         setUser(res.data)
       }
       fetchUserDetails()
@@ -76,6 +79,7 @@ export function AppSidebar() {
     if(!notifications){
       const fetchNotifications = async()=>{
           const res =  await getNotification()
+         
           if(!res.data){
               console.log("Unable to fetch Notifications")
           }
@@ -83,14 +87,16 @@ export function AppSidebar() {
    
       }
       fetchNotifications()
+    
+     
   }
       
     },[])
-
+   
 
   return (
-    <Sidebar >
-      <SidebarContent>
+    <Sidebar  >
+      <SidebarContent className="relative">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -104,10 +110,13 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+       {isDeleting && <DeletingProcess />} 
       </SidebarContent>
+      
     </Sidebar>
   )
 }

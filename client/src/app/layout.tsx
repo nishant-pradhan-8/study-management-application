@@ -3,11 +3,15 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import HomeLayout from "./_components/MainLayout";
-import ContextProvider from "@/context/context";
+import ContextProvider from "@/context/userContext";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./_components/app-sidebar";
 import AppHeading from "./_components/app-heading";
 import AlertDialogOverlay from "./_components/alertDialogOverlay";
+import FolderProvider from "@/context/folderContext";
+import EventsProvider from "@/context/eventsContext";
+import NotesProvider from "@/context/notesContext";
+import Overlay from "./_components/overlay";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,7 +42,10 @@ export default function RootLayout({
         className={`${outfit.variable} ${geistMono.variable} text-gray-800 overflow-hidden bg-gray-300 antialiased`}
       >
         <ContextProvider>
-          <SidebarProvider>
+          <FolderProvider>
+            <NotesProvider>
+              <EventsProvider>
+              <SidebarProvider>
             <AppSidebar   />
             <main className="w-full h-screen m-4 flex flex-col gap-4">
              <div className="flex gap-4 bg-slate-50 p-4 rounded-xl">
@@ -50,8 +57,15 @@ export default function RootLayout({
                {children}
              </div>
              <AlertDialogOverlay />
+             <Overlay />
             </main>
           </SidebarProvider>
+              </EventsProvider>
+       
+            </NotesProvider>
+         
+          </FolderProvider>
+          
         </ContextProvider>
     
         

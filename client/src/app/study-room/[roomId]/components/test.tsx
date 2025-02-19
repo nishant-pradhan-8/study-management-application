@@ -1,11 +1,11 @@
 'use client'
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useCallback, useEffect, useState } from "react"
 import React from 'react'
 import ReactPlayer from 'react-player'
 import peer from "@/services/peer"
 export default function Test(){
-        const {socket} = useAppContext()
+        const {socket} = useUserContext()
         const [remoteSocketId, setRemoteSocketId] = useState<string | null>(null)
         const [myStream, setMyStream] = useState();
         const [remoteStream, setRemoteStream] = useState();

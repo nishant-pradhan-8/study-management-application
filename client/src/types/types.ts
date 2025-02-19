@@ -5,9 +5,10 @@ export interface navOptions {
     icon:string,
 }
 export interface Folder{
-    folderId: string | null,
+    _id: string | null,
     folderName: string,
-    folderRoute:string,
+    createdAt:string | null,
+    folderRoute:string | null,
 }
 export interface Note{
     noteName:string,

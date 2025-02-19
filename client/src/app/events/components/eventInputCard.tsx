@@ -12,23 +12,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRef } from "react"
 import Image from "next/image"
-import { useAppContext } from "@/context/context"
-import { addEvent } from "@/actions/folderAction"
+import { useUserContext } from "@/context/userContext"
+import { addEvent } from "@/actions/events/eventAction"
 import { createEventsServicePlugin } from "@schedule-x/events-service"
 import { useState } from "react"
-import { eventValidation } from "@/lib/utils"
+import useEventValidation from "@/hooks/useEventValidation"
+import { useEventContext } from "@/context/eventsContext"
+import { useEffect } from "react"
 export default function EventInputCard() {
   const eventsService = createEventsServicePlugin();
+  const {eventValidation, emptyFields} = useEventValidation()
   const startDateRef = useRef<HTMLInputElement>(null)
   const endDateRef = useRef<HTMLInputElement>(null)
-  const [emptyField, setEmptyField] = useState<Record<string,boolean>>({ 
-    eventName: false,
-    startDate: false,
-    endDate: false,
-    description: false,
-  });
 
-const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppContext()
+
+const {setEventAlertDialogOpen, setEventsChanges} = useEventContext()
+const {setAlertDialogOpen} = useUserContext()
   const handlePickerOpen = (ref: React.RefObject<HTMLInputElement | null>) => {
     if (ref.current) {
       ref.current.showPicker()
@@ -36,12 +35,12 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
   }
   const submitEventInfo = async(e: React.FormEvent)=>{
     e.preventDefault(); 
-    const eventObj = eventValidation(e,setEmptyField)
+    const eventObj =  eventValidation(e)
     if(!eventObj){
       return
     }
     const res = await addEvent(eventObj.title, eventObj.start, eventObj.end, eventObj.description)
-    console.log(res)
+    
     if(!res.data) {
       console.log('Adding Event Failed')
       return
@@ -54,6 +53,13 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
     }
    
   }
+  useEffect(()=>{
+    console.log(emptyFields.eventName)
+    console.log(emptyFields.startDate)
+    console.log(emptyFields.endDate
+    )
+    console.log(emptyFields.description)
+  },[emptyFields])
 
   const handleEventAddCancel = ()=>{
     setEventAlertDialogOpen(null)
@@ -72,7 +78,7 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
             {/* Event Name */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Event Name</Label>
-              <Input name="eventName" className={`placeholder:text-gray-400 ${emptyField.eventName ? 'border-red-500' : ''}`} id="name" placeholder="Name of your event" />
+              <Input name="eventName" className={`placeholder:text-gray-400 ${emptyFields.eventName ? 'border-red-500' : ''}`} id="name" placeholder="Name of your event" />
             </div>
 
             {/* Start Date */}
@@ -83,7 +89,7 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
                 type="datetime-local"
                 id="start-date"
                 name="startDate"
-                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-400 appearance-none w-full ${emptyField.startDate ? 'border-red-500' : ''}`}
+                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl  border-[1px] placeholder:text-gray-400 appearance-none w-full ${emptyFields.startDate ? 'border-red-500' : 'border-white'}`}
               />
               <button
                 type="button"
@@ -106,7 +112,7 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
                 ref={endDateRef}
                 type="datetime-local"
                 id="end-date"
-                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-500 appearance-none w-full ${emptyField.endDate ? 'border-red-500' : ''}`}
+                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl  border-[1px] placeholder:text-gray-500 appearance-none w-full ${emptyFields.endDate ? 'border-red-500' : 'border-white'}`}
                 name="endDate"
               />
               <button
@@ -128,7 +134,7 @@ const {setEventAlertDialogOpen, setAlertDialogOpen, setEventsChanges} = useAppCo
               <Label htmlFor="text-area">Event Description</Label>
               <textarea
                 id="text-area"
-                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-500 ${emptyField.description ? 'border-red-500' : ''}`}
+                className={`bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-500 ${emptyFields.description ? 'border-red-500' : 'border-white'}`}
                 placeholder="Enter Event Description"
                   name="description"
               />

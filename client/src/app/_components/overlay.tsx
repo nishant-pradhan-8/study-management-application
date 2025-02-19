@@ -1,7 +1,8 @@
 'use client'
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
+import { useNoteContext } from "@/context/notesContext"
 export default function Overlay(){
-    const {activeFile} = useAppContext()
+    const {activeFile} = useNoteContext()
     return(
         <div className={`${activeFile?'overlay':'hidden'}`}>
 

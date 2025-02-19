@@ -4,6 +4,7 @@ const { GridFSBucket } = require("mongodb");
 const mongoose = require("mongoose")
 const jwt = require('jsonwebtoken')
 const SharedFile = require('../models/sharedFilesModel');
+const Folder = require("../models/folderModel")
 
 /*
 
@@ -57,11 +58,16 @@ const uploadNote = async (req, res) => {
 */
 const uploadNotes = async(req,res)=>{
   try{
-    const {newNotes} = req.body
+    
+    const {newNotes, folderId} = req.body
+    console.log(newNotes, folderId)
     const uploads = await Note.insertMany(newNotes)
+    const newNoteIds = await uploads.map(note=>note._id)
+    const folderUpdate = await Folder.updateOne({_id:folderId},{$push:{notes:{ $each: newNoteIds }}})
     return res.status(200).json({status:"succes",message:"Notes Uploaded Sucessfully",data:uploads})
   }catch(e){
-    return res.status(500).json({message:e.message})
+    console.log(e.message)
+    return res.status(500).json({status:"error", message:"Internal Server Error", data:null})
   }
  
 }
@@ -69,13 +75,13 @@ const uploadNotes = async(req,res)=>{
 
 const deleteNote = async(req, res)=>{
   try{
-    const {noteId} = req.params
+    const {noteId} = req.body
     console.log(noteId)
     await Note.deleteOne({_id:noteId})
   
-    return res.status(200).json({message:"Note Deleted Sucessfully"})
+    return res.status(200).json({status:"succes",message:"Note Deleted Sucessfully", data:null})
   }catch(e){
-    return res.status(500).json({message:e.message})
+    return res.status(500).json({status:"error", message:"Internal Server Error", data:null})
   }
 }
 
@@ -96,9 +102,9 @@ const replaceNotes = async(req,res)=>{
       noteName:{$in:replacingNotes.map(note=>note.noteName)}
     })
     
-    return res.status(200).json({message:"Notes Updated SucessFully", data:updatedDocs})
+    return res.status(200).json({status:"succes", message:"Notes Updated SucessFully", data:updatedDocs})
   }catch(e){
-    return res.status(500).json({message:e.message})
+    return res.status(500).json({status:"error", message:e.message, data:null})
   }
 }
 const updateLastViewed = async(req,res)=>{
@@ -129,10 +135,10 @@ const getLastViewedNotes = async(req,res)=>{
     const lastViewedNotes = await Note.find({ 
       userId: userId, 
       lastViewed: { $exists: true, $ne: null } 
-    }).sort({ lastViewed: -1 }).limit(5);
-    return res.status(200).json({status:"success",message:"Last Viewed Notes Fetched Sucessfully", data:lastViewed})
+    }).sort({ lastViewed: -1 }).limit(5).select();
+    return res.status(200).json({status:"success",message:"Last Viewed Notes Fetched Sucessfully", data:lastViewedNotes})
   }catch(e){
-    return res.status(500).json({status:"error",message:"Unexpected Error Occurred", errors:{message:e.message}})
+    return res.status(500).json({status:"error",message:"Unexpected Error Occurred", errors:{message:e.message}, data:null})
   }
  
 }

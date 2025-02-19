@@ -26,10 +26,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// Refresh token route (must be *before* authentication middleware)
 app.use("/api/refresh", refreshRoute);
 
-// Authentication middleware (protects all routes defined *after* this)
+
 app.use(verifyJWT);
 
 // API Routes (protected)

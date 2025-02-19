@@ -19,18 +19,21 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { useRef } from "react"
-import { useAppContext } from "@/context/context"
-import { eventValidation } from "@/lib/utils"
-import { updateEvent } from "@/actions/folderAction"
+import { useUserContext } from "@/context/userContext"
+import useEventValidation from "@/hooks/useEventValidation"
+import { updateEvent } from "@/actions/events/eventAction"
 import { Event } from "@/types/types"
+import { useEventContext } from "@/context/eventsContext"
 export default function UpdateEventCard(){
-    const [emptyField, setEmptyField] = useState<Record<string,boolean>>({ 
+ /*   const [emptyField, setEmptyField] = useState<Record<string,boolean>>({ 
         eventName: false,
         startDate: false,
         endDate: false,
         description: false,
-      });
-      const {events,editingEventId ,setEditingEventId,setEventsChanges, setAlertDialogOpen, setEventAlertDialogOpen} = useAppContext()
+      });*/
+      const {eventValidation, emptyFields} = useEventValidation()
+      const { setAlertDialogOpen} = useUserContext()
+      const {events,editingEventId ,setEditingEventId,setEventsChanges, setEventAlertDialogOpen} = useEventContext()
       const [eventDetails, setEventDetails] = useState<Event>({
         id:"",
         title: "",
@@ -52,7 +55,7 @@ export default function UpdateEventCard(){
        const handleEventUpdate = async(e:React.FormEvent)=>{
        console.log(e.target as HTMLFormElement)
         e.preventDefault(); 
-        const eventObj = eventValidation(e,setEmptyField)
+        const eventObj = eventValidation(e)
           if(!eventObj){
             return
           }
@@ -79,6 +82,9 @@ export default function UpdateEventCard(){
       
        
        useEffect(()=>{
+        if(!events){
+          return
+        }
         const selectedEvent:Event[]  = events.filter(event=>event.id===editingEventId)
         if(selectedEvent.length>0){
           setEventDetails(selectedEvent[0])
@@ -95,7 +101,7 @@ export default function UpdateEventCard(){
            <a className="cursor-pointer" onClick={handleEventUpdateAlertClose}><Image src="/images/cross-white.svg" alt="cross" width={25} height={25} /></a>
           </CardHeader>
       <Accordion className="max-h-[28rem] event-update-accrodion overflow-y-scroll" type="single" collapsible>
-        { events.length>0?(
+        { events && events.length>0?(
           events.map((event)=>(
             <AccordionItem key={event.id} value={event.id}>
             <AccordionTrigger>{event.title}</AccordionTrigger>
@@ -136,7 +142,7 @@ export default function UpdateEventCard(){
                                   start: e.target.value,
                                 }))
                               }
-                              className={`bg-transparent text-black  px-3 py-[0.5rem] rounded-xl border-black border-[1px] placeholder:text-gray-400 appearance-none w-[80%] ${editingEventId===event.id?'bg-slate-100':'bg-slate-300'} ${emptyField.startDate ? 'border-red-500' : ''}`}
+                              className={`bg-transparent text-black  px-3 py-[0.5rem] rounded-xl border-black border-[1px] placeholder:text-gray-400 appearance-none w-[80%] ${editingEventId===event.id?'bg-slate-100':'bg-slate-300'} ${emptyFields.startDate ? 'border-red-500' : ''}`}
                             />
                             <button
                               type="button"
@@ -167,7 +173,7 @@ export default function UpdateEventCard(){
                               type="datetime-local"
                               id="end-date"
                               name="endDate"
-                              className={`bg-transparent text-black px-3 py-[0.5rem] rounded-xl border-black border-[1px] placeholder:text-gray-400 appearance-none w-[80%] ${editingEventId===event.id?'bg-slate-100':'bg-slate-300'} ${emptyField.startDate ? 'border-red-500' : ''}`}
+                              className={`bg-transparent text-black px-3 py-[0.5rem] rounded-xl border-black border-[1px] placeholder:text-gray-400 appearance-none w-[80%] ${editingEventId===event.id?'bg-slate-100':'bg-slate-300'} ${emptyFields.startDate ? 'border-red-500' : ''}`}
                             />
                             <button
                               type="button"

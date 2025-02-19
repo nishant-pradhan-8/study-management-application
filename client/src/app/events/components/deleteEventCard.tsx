@@ -13,14 +13,16 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 
 import { useRef } from "react"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 
 import { Event } from "@/types/types"
-import { deleteEvent } from "@/actions/folderAction"
+import { deleteEvent } from "@/actions/events/eventAction"
+import { useEventContext } from "@/context/eventsContext"
 export default function DeleteEventCard(){
    
       const [eventsToDelete, setEventsToDelete] = useState<string[]>([])
-      const {events,editingEventId ,setEditingEventId,setEventsChanges, setAlertDialogOpen, setEventAlertDialogOpen} = useAppContext()
+      const {events,editingEventId ,setEditingEventId,setEventsChanges, setEventAlertDialogOpen} = useEventContext()
+      const { setAlertDialogOpen,} = useUserContext()
     
        const handleEventUpdateAlertClose = ()=>{
         setAlertDialogOpen(false),
@@ -64,7 +66,7 @@ export default function DeleteEventCard(){
            <a className="cursor-pointer" onClick={handleEventUpdateAlertClose}><Image src="/images/cross-white.svg" alt="cross" width={25} height={25} /></a>
           </CardHeader>
           <CardContent className="p-0">
-            { events.length>0?(
+            {events && events.length>0?(
                 events.map((event)=>(
                     <label
                     key={event.id}

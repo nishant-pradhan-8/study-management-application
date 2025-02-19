@@ -8,7 +8,7 @@ export async function POST(req:Request) {
         const { downloadUrl, shareList, sourceUserId, note } = await req.json();
 
         if (!downloadUrl || !shareList || !sourceUserId) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({status:"success", message: "Missing required fields" , data:null}, { status: 400 });
         }
 
         const response = await fetch(downloadUrl);
@@ -36,9 +36,9 @@ export async function POST(req:Request) {
         });
 
         await Promise.all(uploadPromises);  
-        return NextResponse.json({ message: "File shared successfully", data:notes }, { status: 201 });
+        return NextResponse.json({status:null, message: "File shared successfully", data:notes }, { status: 201 });
 
     } catch (e) {
-        if (e instanceof Error) return NextResponse.json({ error: `Failed to share file: ${e.message}` }, { status: 500 });
+        if (e instanceof Error) return NextResponse.json({status:null, message: `Failed to share file: ${e.message}`, data:null }, { status: 500 });
     }
 }

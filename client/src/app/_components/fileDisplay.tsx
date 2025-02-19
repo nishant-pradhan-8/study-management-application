@@ -2,12 +2,12 @@
 import Image from "next/image"
 import React from "react"
 import { DocumentViewer } from 'react-documents';
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useEffect } from "react";
-
+import { useNoteContext } from "@/context/notesContext";
 
 export default function FileDisplay(){
-    const {activeFile, setActiveFile, fileTags} =useAppContext()
+    const {activeFile, setActiveFile, fileTags} =useNoteContext()
   
     const renderView = ()=>{
       if(activeFile && fileTags.iframe.includes(activeFile?.contentType) ){

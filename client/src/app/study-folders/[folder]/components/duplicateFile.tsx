@@ -1,24 +1,27 @@
 'use client'
 import { useState, useEffect } from "react";
-import { useAppContext } from "@/context/context";
-
-
+import { useUserContext } from "@/context/userContext";
+import { useNoteContext } from "@/context/notesContext";
 export default function DuplicateFile(){
-   const {repeatedFile, handleCancelDuplicateUpdate, handleContinueUploading, holdingFiles} = useAppContext()
+   const {repeatedFile, handleCancelDuplicateUpdate, handleContinueUploading, holdingFiles} = useNoteContext()
    const [duplicateOptionSelected, setDuplicateOptionSelected] = useState(false)
  
    
-   const handleDuplicateFileOptionSelection = (action:string)=>{
+   const handleDuplicateFileOptionSelection = async(action:string)=>{
     setDuplicateOptionSelected(true)
   
     if(action==="cancel"){
-        handleCancelDuplicateUpdate()    
+       handleCancelDuplicateUpdate()    
     }else if(action==='upload'){
-        handleContinueUploading()
+      console.log("went")
+       await handleContinueUploading()
     }
     setDuplicateOptionSelected(false)
    }
 
+   useEffect(()=>{
+     setDuplicateOptionSelected(!duplicateOptionSelected)
+   },[repeatedFile])
     return(
             repeatedFile && !duplicateOptionSelected && 
                 <div className={`w-full max-w-md p-6 bg-gray-800 rounded-2xl shadow-lg fixed top-[50%] left-[50%]  transform -translate-x-1/2 -translate-y-1/2 ${repeatedFile?'block':'hidden'}`}>

@@ -11,7 +11,7 @@ import { Button, Layout, Menu, theme } from 'antd';
 
 import { ReactNode } from 'react';
 import { navOptions } from '@/types/types';
-import { useAppContext } from '@/context/context';
+import { useUserContext } from '@/context/userContext';
 import AlertDialogOverlay from './alertDialogOverlay';
 const { Header, Sider, Content } = Layout;
 const HomeLayout = ({children}:{ children: ReactNode}) => {

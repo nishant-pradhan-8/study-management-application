@@ -1,13 +1,16 @@
 'use client'
 import Image from "next/image"
 import Link from "next/link"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import Notifications from "./notifications"
 import { Notification } from "@/types/types"
 import { useState, useEffect } from "react"
-import { markNotificationRead } from "@/actions/folderAction"
+import { markNotificationRead } from "@/actions/notifications/notificationAction"
+import FileDisplay from "./fileDisplay"
+import { useNoteContext } from "@/context/notesContext"
 export default function AppHeading(){
-    const {user, setNotificationDialogOpen, notificationDialogOpen, setNotifications ,notifications} = useAppContext()
+    const {user, setNotificationDialogOpen, notificationDialogOpen, setNotifications ,notifications} = useUserContext()
+    const {activeFile} = useNoteContext()
     const [unreadNotification, setUnreadNotification] = useState<Notification[]>([])
     useEffect(()=>{
         
@@ -34,9 +37,7 @@ export default function AppHeading(){
         }
       
     }
-    useEffect(()=>{
-        console.log(notifications)
-    },[notifications])
+    
   
     
   
@@ -56,6 +57,8 @@ export default function AppHeading(){
                         </Link>
             </div>
            {notificationDialogOpen && <Notifications />}
+           { activeFile && <FileDisplay />
+         } 
         </div>
     )
 }

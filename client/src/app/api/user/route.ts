@@ -9,18 +9,15 @@ export async function POST(req: Request) {
       const formData = await req.formData();
       const profilePicture = formData.get("profilePicture");
       const userId = formData.get("userId");
-      console.log(userId, profilePicture)
+
       if (!(profilePicture instanceof File)) {
         return NextResponse.json(
-          { status: "error", message: "Invalid file or missing data" },
+          { status: "error", message: "Invalid file or missing data", data:null },
           { status: 400 }
         );
       }
-  
-      console.log("Received file:", profilePicture.name);
-  
       const metaData = { contentType: profilePicture.type };
-      const storageRef = ref(storage, `Students/${userId}/profile/${profilePicture.name}`);
+      const storageRef = ref(storage, `Students/${userId}/profile/profilePicture`);
   
     
       await uploadBytes(storageRef, profilePicture, metaData);
@@ -44,6 +41,7 @@ export async function DELETE(req:Request){
       console.log(process.env.NEXT_PUBLIC_FIREBASE_BASE_URL)
       console.log(downloadUrl)
       const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_BASE_URL}`;
+     
       const decodedPath = decodeURIComponent(downloadUrl.split(baseUrl)[1].split("?")[0]);
       const storageRef: StorageReference = ref(storage, decodedPath);
       await deleteObject(storageRef);

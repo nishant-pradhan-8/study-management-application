@@ -1,9 +1,10 @@
 'use client'
 import { useEffect } from "react"
-import { useAppContext } from "@/context/context"
-import { getEvents } from "@/actions/folderAction"
+import { useUserContext } from "@/context/userContext"
+import { useEventContext } from "@/context/eventsContext"
 export default function CalendarHeading(){
-    const {setAlertDialogOpen, setEventAlertDialogOpen, setEvents, events} = useAppContext()
+    const {setEventAlertDialogOpen, setEvents, events} = useEventContext()
+    const {setAlertDialogOpen} = useUserContext()
     const handleEventAlertDialog = (action:string)=>{
         setAlertDialogOpen(true)
         if(action==="Create"){

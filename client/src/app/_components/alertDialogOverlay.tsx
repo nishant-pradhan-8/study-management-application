@@ -1,8 +1,8 @@
 'use client'
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useEffect } from "react"
 export default function AlertDialogOverlay(){
-    const {alertDialogOpen} = useAppContext()
+    const {alertDialogOpen} = useUserContext()
     useEffect(()=>{
         console.log(alertDialogOpen)
     },[alertDialogOpen])

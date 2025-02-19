@@ -8,12 +8,12 @@ import {
     CardTitle,
   } from "@/components/ui/card"
 import Image from "next/image"
-import { useAppContext } from "@/context/context"
+import { useUserContext } from "@/context/userContext"
 import { useState , useCallback, useEffect} from "react"
 import { useRouter } from "next/navigation"
 import { SocketMember } from "@/types/types"
 export default function JoinRoom(){
-    const {setAlertDialogOpen, setJoinRoomAlertDialogOpen, socket,user,openMedia,setOwnStream , } = useAppContext()
+    const {setAlertDialogOpen, setJoinRoomAlertDialogOpen, socket,user,openMedia,setOwnStream , } = useUserContext()
     const [roomId, setRoomId] = useState<string>("")
     const router = useRouter()
 

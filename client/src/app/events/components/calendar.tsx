@@ -12,17 +12,18 @@ import { useEffect, useState } from "react";
 import { ScheduleXCalendar, useNextCalendarApp } from '@schedule-x/react'
 import { createEventModalPlugin } from '@schedule-x/event-modal'
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
-import { useAppContext } from '@/context/context';
+import { useUserContext } from '@/context/userContext';
 import EventInputCard from './eventInputCard';
 import { Event } from '@/types/types';
 import {format} from 'date-fns'
-import { getEvents } from '@/actions/folderAction';
+import { getEvents } from '@/actions/events/eventAction';
 import UpdateEventCard from './updateEventCard';
-import { updateEvent } from '@/actions/folderAction';
+import { updateEvent } from '@/actions/events/eventAction';
 import DeleteEventCard from './deleteEventCard';
+import { useEventContext } from '@/context/eventsContext';
 function CalendarApp() {
   const [eventsService] = useState(() => createEventsServicePlugin()); // Store eventsService separately
-  const {eventAlertDialogOpen, setEvents, events, eventsChanges, editingEventId, setEventsChanges} = useAppContext()
+  const {eventAlertDialogOpen, setEvents, events, eventsChanges} = useEventContext()
 
    useEffect(()=>{
   
@@ -32,14 +33,14 @@ function CalendarApp() {
         console.log(res.error)
         return
       }
-    
+     console.log(res)
       const formattedRes = res.data.map((event: Event) => ({
        ...event,
        start: event.start ? format(new Date(event.start), "yyyy-MM-dd HH:mm") : "",
        end: event.end ? format(new Date(event.end), "yyyy-MM-dd HH:mm") : "",
      }));
-    console.log(events)
-     if(events.length>0){
+
+     if(events && events.length>0){
       events.forEach((event:Event) => {
         eventsService.remove(event.id);
        });

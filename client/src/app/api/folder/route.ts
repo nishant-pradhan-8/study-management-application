@@ -36,6 +36,7 @@ export async function GET(){
         const studentNotesFolderRef = ref(storage,`Students/AkFfXEqk2rWuMiM0bSm3gFkqQOf2/`)
         const res = await listAll(studentNotesFolderRef);
         return NextResponse.json({
+            status:"success",
             message:"Get Sucessfull",
             data:res
         },{
@@ -43,7 +44,9 @@ export async function GET(){
         })
     }catch(e:any){
       return NextResponse.json({
+        status:"error",
         message:e.message,
+        data:null
       },{
         status:400,
         headers: { 'Content-Type': 'application/json' },
