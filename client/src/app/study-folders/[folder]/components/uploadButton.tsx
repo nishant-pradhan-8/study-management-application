@@ -4,7 +4,7 @@ import { useUserContext } from "@/context/userContext"
 import React from "react"
 import { useNoteContext } from "@/context/notesContext"
 import UploadProgress from "./uploadProgress"
-import useUploadFile from "@/hooks/useUploadFile"
+import useUploadFile from "@/hooks/notes/useUploadFile"
 export default function UploadButton({folderId}:{folderId:string}){
     const {getInputProps,open} = useNoteContext()
    const {isUploading} = useNoteContext()

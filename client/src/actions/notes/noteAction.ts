@@ -8,7 +8,7 @@ export const getNotes = async (folderId: string) => {
   const { data } = await apiCall(`/api/folder/${folderId}`, "GET", null);
   return data;
 };
-
+/*
 export const deleteNote = async (
   fileId: string,
   fileName: string,
@@ -21,7 +21,7 @@ export const deleteNote = async (
   if(!notes){
     return
   }
-  const latestNotes = notes.filter((note) => note.noteId !== fileId);
+  const latestNotes = notes.filter((note) => note._id !== fileId);
   setNotes(latestNotes);
   setFileMenuOpenId(null);
   try {
@@ -46,7 +46,7 @@ export const deleteNote = async (
     }
   }
 };
-
+*/
 export const updateLast = async () => {
   const {data} = await apiCall("/api/note/updateLastViewed","PATCH",null)
   return data
@@ -55,4 +55,28 @@ export const updateLast = async () => {
 export const getLastViewedNotes = async()=>{
   const {data} = await apiCall("/api/note/getLastViewedNotes","GET",null)
   return data
+}
+
+
+
+export const deleteNote = async(userId:string, noteName:string, folderId:string, noteId:string) =>{
+ console.log(noteName)
+const {data} = await nextBackEndApiCall('/api/notes',"DELETE",{
+    userId,
+    folderId,
+    noteName
+  } )
+  console.log('a',data)
+  
+  const res = await apiCall(`/api/note/deleteNote`, "DELETE", {noteId});
+  console.log('res', res)
+  return res
+
+}
+
+
+export const getNoteInfo = async(noteId:string | null) =>{
+  const {data} = await apiCall(`/api/note/noteInfo/${noteId}`, "GET", null);
+  return data
+  
 }

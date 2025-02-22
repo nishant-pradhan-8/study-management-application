@@ -4,11 +4,11 @@ import UploadButton from "./uploadButton";
 import { Folder } from "@/types/types";
 import { useFolderContext } from "@/context/folderContext";
 import { useNoteContext } from "@/context/notesContext";
-import useUploadFile from "@/hooks/useUploadFile";
-export default function PageHeadng({folderRoute}:{folderRoute:string}){
+import useUploadFile from "@/hooks/notes/useUploadFile";
+export default function PageHeadng({folderId}:{folderId:string}){
     const {folders,} = useFolderContext()
     const { fileRejected, fileSizeExceeded} = useNoteContext()
-    const selectedFolder:Folder[] | null = folders && folders.filter(folder=>folder.folderRoute===folderRoute)
+    const selectedFolder:Folder[] | null = folders && folders.filter(folder=>folder._id===folderId)
    return(
        selectedFolder &&(
         <div className="flex justify-between">

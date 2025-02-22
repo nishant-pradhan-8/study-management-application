@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { Reference } from "react";
 import { FolderRequestBody } from "@/types/types";
 import { listAll } from "firebase/storage";
+import { deleteObject } from "firebase/storage";
 export async function POST(request: Request) {
     try {
         const body:FolderRequestBody = await request.json();
@@ -52,4 +53,28 @@ export async function GET(){
         headers: { 'Content-Type': 'application/json' },
       })
     }
+}
+
+export async function DELETE(request:Request){
+     const req = await request.json();
+      const { userId, folderId } = req;
+
+      try {
+      
+        const storageRef: StorageReference = ref(storage, `Students/${userId}/${folderId}`);
+        const fileList = await listAll(storageRef)
+        const deletePromises = fileList.items.map((fileRef) => deleteObject(fileRef));
+        await Promise.all(deletePromises);
+        return NextResponse.json(
+          {status:"success", message: "Folder Deleted Successfully in Firebase", data:null },
+          { status: 200 }
+        );
+    
+      } catch (e:any) {
+        console.error("Error deleting the folder:", e);
+        return NextResponse.json(
+          {status:"error",  message: e.message, data:null },
+          { status: 500 }
+        );
+      }
 }

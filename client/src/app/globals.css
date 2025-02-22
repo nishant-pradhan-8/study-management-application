@@ -107,6 +107,12 @@ html{
     transform: translateY();
   }
 
+ tr th{
+  @apply p-2
+ }
+ tr td{
+  @apply p-2
+ }
 }
 /* HTML:  */
 /* HTML: */

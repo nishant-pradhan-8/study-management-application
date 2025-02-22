@@ -9,32 +9,18 @@ import { routeFormater } from "@/utils/utils";
 import { Folder } from "@/types/types";
 import { useFolderContext } from "@/context/folderContext";
 import { updateAccessCount } from "@/actions/folders/folderAction";
+import useCreateFolder from "@/hooks/folders/useCreateFolder";
 export default function FolderList() {
-    const { folders, setFolders, activeFolder, setActiveFolder } = useFolderContext(); 
+    const { folders, setFolders, activeFolder, setActiveFolder, setFaf } = useFolderContext(); 
     const { user } = useUserContext();
-    const [newFolderName, setNewFolderName] = useState<string>(""); 
+   /* const [newFolderName, setNewFolderName] = useState<string>(""); 
     const [folderNameError, setFolderNameError] = useState(false); 
     const inputRef = useRef<HTMLInputElement | null>(null);
+*/
+   const {newFolderName, setNewFolderName,folderNameError,inputRef, handleCreateFolder} = useCreateFolder(folders,setFolders)
+   
 
-    useEffect(() => {
-        if (!folders) {
-            const fetchFolders = async () => {
-                const res = await showFolders();
-                if (res.data) {
-                    const modifiedFolders = res.data.map((folder: Folder) => ({
-                        ...folder,
-                        folderRoute: routeFormater(folder.folderName),
-                    }));
-                    setFolders(modifiedFolders);
-                } else {
-                    console.log("No folders to show");
-                }
-            };
-            fetchFolders();
-        }
-    }, []); 
-
-    const handleCreateFolder = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+  /*  const handleCreateFolder = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             setFolderNameError(false);
             if (newFolderName.trim() === "") { 
@@ -50,7 +36,7 @@ export default function FolderList() {
                         _id: res.data._id,
                         folderName: res.data.folderName,
                         createdAt: res.data.createdAt,
-                        folderRoute: routeFormater(res.data.folderName),
+                        
                     };
 
                     setFolders(prevFolders => {
@@ -71,18 +57,29 @@ export default function FolderList() {
             }
         }
     };
-
+*/
     useEffect(()=>{
         if(inputRef && inputRef.current){
             inputRef.current.focus()
         }
       
     },[folders])
+    const manageCreateFolder = (e:React.KeyboardEvent<HTMLInputElement>)=>{
+        if(e.key === "Enter"){
+            handleCreateFolder()
+            setFaf(null)
 
+        }
 
-    useEffect(()=>{
-        console.log(newFolderName)
-    },[newFolderName])
+    }
+
+    const handleCreateFolderOnBlur = ()=>{
+        const modifiedFolders:Folder[] = folders?.filter(folder=>folder._id!==null) || []
+        setFolders(modifiedFolders)
+    }
+      
+    
+
 
     return (
         <div className="mt-8 flex flex-col gap-4">
@@ -93,7 +90,7 @@ export default function FolderList() {
                     folders.map((folder,i) => (
                         folder._id?
                         <div   key={i} className="folder-card w-full">
-                            <Link onClick={folder._id ?() => updateAccessCount(folder._id) : undefined} href={`/study-folders/${folder.folderRoute}`}  className="folder-icon-div w-full">
+                            <Link onClick={folder._id ?() => updateAccessCount(folder._id) : undefined} href={`/study-folders/${folder._id}`}  className="folder-icon-div w-full">
                                 <Image src="/images/folder-dark.svg" alt="folder-icon" width={25} height={25} />
                               
                                    { folder.folderName}
@@ -111,10 +108,11 @@ export default function FolderList() {
                                         className="border-[1px] text-black border-gray-400 outline-none"
                                         value={newFolderName}
                                         onChange={e => setNewFolderName(e.target.value)} // Controlled input
-                                        onKeyDown={handleCreateFolder}
+                                        onKeyDown={manageCreateFolder}
+                                        onBlur={handleCreateFolderOnBlur}
                                     />
-                                {folder.folderName === "" && folderNameError && (
-                                    <p className="text-red-600">Folder name cannot be Empty!</p>
+                                {folderNameError && (
+                                    <p className="text-red-600 font-normal">*{folderNameError}</p>
                                 )}
                             </div>
                          

@@ -3,6 +3,7 @@ import React, {
   createContext,
   useContext,
   useState,
+  useRef,
   ReactNode,
   Dispatch,
   SetStateAction,
@@ -26,9 +27,10 @@ interface ContextType {
   setAlertDialogOpen: Dispatch<SetStateAction<boolean>>;
   notifications: Notification[] | null;
   setNotifications: Dispatch<SetStateAction<Notification[] | null>>;
+  isDeleting:boolean,
+   setIsDeleting:Dispatch<SetStateAction<boolean>>;
 
-  notificationDialogOpen: boolean;
-  setNotificationDialogOpen: Dispatch<SetStateAction<boolean>>;
+  
 }
 const AppContext = createContext<ContextType | undefined>(undefined);
 
@@ -99,9 +101,9 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[] | null>(
     null
   );
-  const [notificationDialogOpen, setNotificationDialogOpen] =
-    useState<boolean>(false);
+  
   const [alertDialogOpen, setAlertDialogOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   return (
     <AppContext.Provider
@@ -120,8 +122,8 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         setAlertDialogOpen,
         notifications,
         setNotifications,
-        notificationDialogOpen,
-        setNotificationDialogOpen,
+        isDeleting, 
+        setIsDeleting
       }}
     >
       {children}

@@ -5,6 +5,7 @@ const mongoose = require("mongoose")
 const jwt = require('jsonwebtoken')
 const SharedFile = require('../models/sharedFilesModel');
 const Folder = require("../models/folderModel")
+const {format, parseISO} = require("date-fns")
 
 /*
 
@@ -63,7 +64,7 @@ const uploadNotes = async(req,res)=>{
     console.log(newNotes, folderId)
     const uploads = await Note.insertMany(newNotes)
     const newNoteIds = await uploads.map(note=>note._id)
-    const folderUpdate = await Folder.updateOne({_id:folderId},{$push:{notes:{ $each: newNoteIds }}})
+    await Folder.updateOne({_id:folderId},{$push:{notes:{ $each: newNoteIds }}})
     return res.status(200).json({status:"succes",message:"Notes Uploaded Sucessfully",data:uploads})
   }catch(e){
     console.log(e.message)
@@ -76,8 +77,14 @@ const uploadNotes = async(req,res)=>{
 const deleteNote = async(req, res)=>{
   try{
     const {noteId} = req.body
-    console.log(noteId)
-    await Note.deleteOne({_id:noteId})
+    const userId = req.userId
+    const noteDelete = await Note.findOneAndDelete({_id:noteId, userId})
+
+   if(!noteDelete){
+    return res.status(404).json({status:"error",message:"Note not found!", data:null})
+   }
+
+    await Folder.updateOne({_id:noteDelete.folderId, userId},{$pull:{notes:noteId}})
   
     return res.status(200).json({status:"succes",message:"Note Deleted Sucessfully", data:null})
   }catch(e){
@@ -135,13 +142,60 @@ const getLastViewedNotes = async(req,res)=>{
     const lastViewedNotes = await Note.find({ 
       userId: userId, 
       lastViewed: { $exists: true, $ne: null } 
-    }).sort({ lastViewed: -1 }).limit(5).select();
-    return res.status(200).json({status:"success",message:"Last Viewed Notes Fetched Sucessfully", data:lastViewedNotes})
+    }).sort({ lastViewed: -1 }).limit(5).populate("folderId").select("noteName noteId contentType fileSize fileType downloadUrl")
+   
+    const resObj = lastViewedNotes.map((note)=>(
+      {
+        noteName:note.noteName,
+        _id:note._id,
+        contentType:note.contentType,
+        fileSize:note.fileSize,
+        fileType:note.fileType,
+        folderName:note.folderId.folderName,
+        downloadUrl:note.downloadUrl,
+      }
+    ))
+    return res.status(200).json({status:"success",message:"Last Viewed Notes Fetched Sucessfully", data:resObj})
   }catch(e){
     return res.status(500).json({status:"error",message:"Unexpected Error Occurred", errors:{message:e.message}, data:null})
   }
  
 }
+
+
+const noteInfo = async(req,res)=>{
+  try{
+  
+    const {noteId} = req.params;
+ 
+    const userId = req.userId
+    
+    const noteInfo = await Note.findOne({_id:noteId, userId}).select("noteName fileSize fileType lastViewed createdAt")
+    
+    if(!noteInfo){
+      return res.status(404).json({status:'error', message:'Note not found.', data:null})
+    }
+  
+
+    const resObj = {
+      noteName:noteInfo.noteName,
+      fileSize: noteInfo.fileSize,
+      fileType: noteInfo.fileType,
+      uploadedAt: format(noteInfo.createdAt,'yyyy-MM-dd'),
+      lastViewed:  format(noteInfo.lastViewed,'yyyy-MM-dd'),
+    }
+
+    
+    return res.status(200).json({status:'success', message:'Note Info Fetched Successfully.', data:resObj})
+  
+  }catch(e){
+    console.log(e.message)
+    return res.status(500).json({status:'error', message:'Internal Server Error.', data:null})
+  }
+ 
+  
+}
+
 /*
 const shareNote = async(req,res)=>{
   try{
@@ -219,4 +273,4 @@ const getSharedNotes = async(req,res)=>{
  
 }*/
 
-module.exports = {uploadNotes, deleteNote, replaceNotes,updateLastViewed,getLastViewedNotes}
+module.exports = {uploadNotes, deleteNote, replaceNotes,updateLastViewed,getLastViewedNotes, noteInfo}

@@ -2,21 +2,14 @@
 import Image from "next/image"
 import { useEffect, useState, useRef } from "react"
 import { useUserContext } from "@/context/userContext"
-import AvatarWithText from "./avatarAndText"
+import AvatarWithText from "../folders/avatarAndText"
 import Link from "next/link"
-import NotificationSkeleton from "./notificationSkeleton"
-export default function Notifications(){
-    const notificationDialogRef= useRef<HTMLDivElement | null>(null)
-    const {notificationDialogOpen, setNotificationDialogOpen, setNotifications, notifications} = useUserContext()
-    const handleDialogClose = (e:MouseEvent)=>{
-        if(notificationDialogRef && notificationDialogOpen && notificationDialogRef.current && !notificationDialogRef.current.contains(e.target as Node)){
-            setNotificationDialogOpen(false)
-        }
-    }
-    useEffect(()=>{
-        document.addEventListener('click',handleDialogClose)
-        return () => document.removeEventListener("click", handleDialogClose);
-    },[notificationDialogOpen])
+import NotificationSkeleton from "../skeletons/notificationSkeleton"
+
+export default function Notifications({dialogRef}:{dialogRef:React.RefObject<HTMLDivElement | null>}){
+    
+    const { notifications} = useUserContext()
+
   
     const notificationIcon:Record<string,string> ={
         friendRequest:"/images/friends.svg",
@@ -24,7 +17,7 @@ export default function Notifications(){
     }
 
     return(
-        <div ref={notificationDialogRef} className="absolute w-[18rem] top-[3.5rem] z-[50] bg-white border-[1px] border-gray-400 right-[3rem] rounded-xl">
+        <div ref={dialogRef} className="absolute w-[18rem] top-[3.5rem] z-[50] bg-white border-[1px] border-gray-400 right-[3rem] rounded-xl">
             <ul>
                 {
                   

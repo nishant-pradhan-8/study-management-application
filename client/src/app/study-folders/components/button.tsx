@@ -12,7 +12,7 @@ export default function Button({action,src}:{action:string, src:string}){
                   _id: null,
                   folderName: "",
                   createdAt:null,
-                  folderRoute:null
+    
             }
             setFolders(val=>[...val || [],newFolder])
         }

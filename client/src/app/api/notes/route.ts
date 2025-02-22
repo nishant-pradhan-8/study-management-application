@@ -5,7 +5,7 @@ import { getCurrentDate } from "@/utils/utils";
 import { uploadBytes } from "firebase/storage";
 import { NoteResponse } from "@/types/types";
 import { deleteObject } from "firebase/storage";
-
+import { formatFileSize } from "@/utils/utils";
 export async function POST(request: Request) {
     try {
       const formData: FormData = await request.formData();
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
             const blob = file.slice(0, file.size);
             const storageRef = ref(
               storage,
-              `Students/${userId}/${folderId}/${file.name}`
+              `Students/${userId}/${folderId}/${file.name.replace(/\.[^/.]+$/, "")}`
             );
   
             await uploadBytes(storageRef, blob, metaData);
@@ -40,10 +40,12 @@ export async function POST(request: Request) {
             const downloadUrl = await getDownloadURL(storageRef);
   
             const noteObject: NoteResponse = {
-              noteName: file.name,
+              noteName: file.name.replace(/\.[^/.]+$/, ""),
               folderId,
               userId,
               contentType: file.type,
+              fileSize: formatFileSize(file.size),
+              fileType: file.name?.split(".")?.pop()?.toLowerCase() ?? "",
               downloadUrl,
             };
   
@@ -79,12 +81,12 @@ export async function POST(request: Request) {
 }
 export async function DELETE(request:Request){
   const req = await request.json();
-  console.log(req)
-  const { userId, folderId, fileName } = req;
-  console.log(userId)
+  
+  const { userId, folderId, noteName } = req;
+
   try {
   
-    const storageRef: StorageReference = ref(storage, `Students/${userId}/${folderId}/${fileName}`);
+    const storageRef: StorageReference = ref(storage, `Students/${userId}/${folderId}/${noteName}`);
     await deleteObject(storageRef);
     return NextResponse.json(
       {status:"success", message: "File Deleted Successfully in Firebase", data:null },

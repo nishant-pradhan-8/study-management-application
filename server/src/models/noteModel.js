@@ -8,6 +8,14 @@ const noteSchema = mongoose.Schema({
         type:String,
         required:true,
     },
+    fileSize:{
+        type:String,
+        required:true,
+    },
+    fileType:{
+        type:String,
+        required:true,
+    },
     folderId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Folder', 

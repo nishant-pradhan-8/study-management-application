@@ -134,8 +134,11 @@ const useUploadFile = (
                 (note: any) => {
                   return {
                     noteName: note.noteName,
-                    noteId: note._id,
+                    _id: note._id,
                     contentType: note.contentType,
+                    fileSize:note.fileSize,
+                    fileType: note.fileType,
+                    folderName:note.folderName,
                     downloadUrl: note.downloadUrl,
                   };
                 }
@@ -144,15 +147,18 @@ const useUploadFile = (
                 (note: any) => {
                   return {
                     noteName: note.noteName,
-                    noteId: note._id,
+                    _id: note._id,
                     contentType: note.contentType,
+                    fileSize:note.fileSize,
+                    fileType: note.fileType,
+                    folderName:note.folderName,
                     downloadUrl: note.downloadUrl,
                   };
                 }
               );
               let replacedNoteList = notes && notes.map((note: Note) => {
                 let replacement = modifiedReplacedNotes.find(
-                  (updatedNote) => updatedNote.noteId === note.noteId
+                  (updatedNote) => updatedNote._id=== note._id
                 );
                 return replacement || note;
               });
@@ -165,8 +171,11 @@ const useUploadFile = (
               let updatedNoteList = data.data.map((note: any) => {
                 return {
                   noteName: note.noteName,
-                  noteId: note._id,
+                  _id: note._id,
                   contentType: note.contentType,
+                  fileSize:note.fileSize,
+                  fileType: note.fileType,
+                  folderName:note.folderName,
                   downloadUrl: note.downloadUrl,
                 };
               });

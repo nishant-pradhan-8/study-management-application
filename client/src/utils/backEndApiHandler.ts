@@ -11,6 +11,8 @@ const apiCall = async(url:string,method:"GET" | "POST" | "PATCH" | "PUT" | "DELE
     try{
      
        const res = await backEndApi({url,method,data:body})
+
+       console.log(res)
         return { status: "success", data: res.data, error: null };
     }catch(e){
         return { 

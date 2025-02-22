@@ -5,6 +5,7 @@ const multUpload = require("../middleware/multStorage")
 router.post("/uploadNotes",noteControllers.uploadNotes)
       .patch("/updateLastViewed", noteControllers.updateLastViewed)
        .delete("/deleteNote",noteControllers.deleteNote)
+       .get("/noteInfo/:noteId",noteControllers.noteInfo)
        .get("/getLastViewedNotes", noteControllers.getLastViewedNotes)
        .put("/replaceNotes", noteControllers.replaceNotes)
 

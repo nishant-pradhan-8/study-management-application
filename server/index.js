@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 
 const { connectDB } = require("./src/config/database"); // Database connection
 const verifyJWT = require('./src/middleware/verifyJWT'); // Authentication middleware
-
+const authRoutes = require('./src/routes/auth')
 const userRoutes = require("./src/routes/user");
 const refreshRoute = require("./src/routes/refresh");
 const folderRoutes = require("./src/routes/folder");
@@ -27,7 +27,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/refresh", refreshRoute);
-
+app.use("/api/auth", authRoutes)
 
 app.use(verifyJWT);
 

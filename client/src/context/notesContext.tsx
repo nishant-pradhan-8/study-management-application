@@ -8,7 +8,7 @@ import { useDropzone } from "react-dropzone";
 import { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
 import { useUserContext } from "./userContext";
 import { useFolderContext } from "./folderContext";
-import useUploadFile from "@/hooks/useUploadFile";
+import useUploadFile from "@/hooks/notes/useUploadFile";
 interface ContextType {
   notes: Note[] | null;
   setNotes: Dispatch<SetStateAction<Note[] | null>>;
@@ -28,9 +28,7 @@ interface ContextType {
   setSelectedFileMenu: Dispatch<SetStateAction<string | null>>;
   activeFile: ActiveFile | null;
   setActiveFile: Dispatch<SetStateAction<ActiveFile | null>>;
- 
-  fileMenuOpenId: string | null;
-  setFileMenuOpenId: Dispatch<SetStateAction<string | null>>;
+
   recentNotes: Note[] | null;
   setRecentNotes: Dispatch<SetStateAction<Note[] | null>>;
   fileIcons: Record<string, string>;
@@ -48,6 +46,7 @@ interface ContextType {
   setFileRejected: Dispatch<SetStateAction<boolean>>;
   fileSizeExceeded: boolean;
   setFileSizeExceeded: Dispatch<SetStateAction<boolean>>;
+
 
 }
 const NotesContext = createContext<ContextType | undefined>(undefined);
@@ -68,8 +67,9 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
   const [selectedFileMenu, setSelectedFileMenu] = useState<string | null>(null);
   const [activeFile, setActiveFile] = useState<ActiveFile | null>(null);
  
-  const [fileMenuOpenId, setFileMenuOpenId] = useState<string | null>(null);
+  
   const [recentNotes, setRecentNotes] = useState<Note[] | null>(null);
+  
   const fileIcons: Record<string, string> = {
     "application/pdf": "pdf.svg",
     "application/msword": "word.svg",
@@ -116,7 +116,9 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
       setErrorDuringUpload,
       setFileRejected,
       uploadList,
-    setFileSizeExceeded)
+
+    setFileSizeExceeded,
+  )
   }
   
   
@@ -172,14 +174,14 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
         setRepeatedFile,
         selectedFileMenu, setSelectedFileMenu,
         activeFile, setActiveFile,
-        fileMenuOpenId, setFileMenuOpenId,
+       
         recentNotes, setRecentNotes,
         fileIcons, fileTags,
         onDrop,handleContinueUploading, handleCancelDuplicateUpdate,
         isUploading, setIsUploading,
         errorDuringUpload, setErrorDuringUpload,fileRejected, setFileRejected,
         fileSizeExceeded, setFileSizeExceeded,
-  
+       
         getRootProps, getInputProps, isDragActive,open,
       }}
     >

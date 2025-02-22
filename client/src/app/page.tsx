@@ -1,6 +1,6 @@
 import Image from "next/image";
-import RecentFolders from "./_components/RecentFolders";
-import RecentNotes from './_components/RecentNotes';
+import RecentFolders from "./_components/folders/faf";
+import RecentNotes from "./_components/notes/RecentNotes";
 
 export default function Home() {
 

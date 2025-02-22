@@ -1,6 +1,6 @@
 "use client"
 import type { navOptions } from "@/types/types"
-import useCreateFolder from "@/hooks/useViewFile";
+import useCreateFolder from "@/hooks/notes/useViewFile";
 import Image from "next/image"
 import {
   Sidebar,
@@ -19,6 +19,10 @@ import { getNotification } from "@/actions/notifications/notificationAction"
 
 import DeletingProcess from "./deletingProcess";
 import { useFolderContext } from "@/context/folderContext";
+import { showFolders } from "@/actions/folders/folderAction";
+import { routeFormater } from "@/utils/utils";
+import { Folder } from "@/types/types";
+
 export function AppSidebar() {
   const navOptions:navOptions[] = [
     {
@@ -58,8 +62,8 @@ export function AppSidebar() {
       icon: '/images/studyRoom.svg'
     }
   ]
-  const {setUser,user, notifications, setNotifications} = useUserContext()
-  const {isDeleting} = useFolderContext()
+  const {setUser,user, notifications, setNotifications, isDeleting} = useUserContext()
+  const {folders, setFolders} = useFolderContext()
    useEffect(()=>{
     
     if(!user){
@@ -87,11 +91,25 @@ export function AppSidebar() {
    
       }
       fetchNotifications()
-    
      
   }
+  if (!folders) {
+    const fetchFolders = async () => {
+        const res = await showFolders();
+        if (res.data) {
+            const modifiedFolders = res.data.map((folder: Folder) => ({
+                ...folder,
+                folderRoute: routeFormater(folder.folderName),
+            }));
+            setFolders(modifiedFolders);
+        } else {
+            console.log("No folders to show");
+        }
+    };
+    fetchFolders();
+}
       
-    },[])
+    },[user, notifications, folders])
    
 
   return (
@@ -114,7 +132,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-       {isDeleting && <DeletingProcess />} 
+        {isDeleting && <DeletingProcess  />} 
       </SidebarContent>
       
     </Sidebar>

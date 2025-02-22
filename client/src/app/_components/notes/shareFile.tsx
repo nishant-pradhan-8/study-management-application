@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { getFriendList } from '@/actions/users/usersAction';
 import { User } from '@/types/types';
 import { useNoteContext } from '@/context/notesContext';
+import useCloseDialog from '@/hooks/useAlertDialog';
 function ShareFile({ note }: { note: Note }) {
   const { shareList, setShareList, friends,  setFriends, user, setAlertDialogOpen } = useUserContext();
   const{selectedFileMenu, setSelectedFileMenu, setFileMenuOpenId} = useNoteContext()

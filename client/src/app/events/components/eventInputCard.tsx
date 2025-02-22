@@ -16,7 +16,7 @@ import { useUserContext } from "@/context/userContext"
 import { addEvent } from "@/actions/events/eventAction"
 import { createEventsServicePlugin } from "@schedule-x/events-service"
 import { useState } from "react"
-import useEventValidation from "@/hooks/useEventValidation"
+import useEventValidation from "@/hooks/events/useEventValidation"
 import { useEventContext } from "@/context/eventsContext"
 import { useEffect } from "react"
 export default function EventInputCard() {

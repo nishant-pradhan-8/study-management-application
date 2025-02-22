@@ -3,9 +3,12 @@ const router = express.Router()
 const folderControllers = require("../controllers/folderControllers")
 router.get("/showFolders",folderControllers.showFolders)
       .get("/frequentlyAccessedFolders", folderControllers.getQuickAccessFolders)
-      .post("/createFolder",folderControllers.createFolder)
+      .get("/folderInfo/:folderId", folderControllers.folderInfo)
       .get("/:folderId",folderControllers.showFolderData)
+      .post("/createFolder",folderControllers.createFolder)
       .patch("/updateFolderAccessCount", folderControllers.countFolderAccess)
+      .patch("/renameFolder", folderControllers.renameFolder)
       .delete("/deleteFolder", folderControllers.deleteFolder)
+      
     
 module.exports = router

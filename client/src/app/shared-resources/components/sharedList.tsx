@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { getSharedNotes } from "@/actions/SharedNotes/sharedNoteAction"
 import { SharedNotes } from "@/types/types"
 import { useUserContext } from "@/context/userContext"
-import FileDisplay from "@/app/_components/fileDisplay"
+import FileDisplay from "@/app/_components/notes/fileDisplay"
 import { useNoteContext } from "@/context/notesContext"
 import { Skeleton } from "@/components/ui/skeleton"
 

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/accordion"
 import { useRef } from "react"
 import { useUserContext } from "@/context/userContext"
-import useEventValidation from "@/hooks/useEventValidation"
+import useEventValidation from "@/hooks/events/useEventValidation"
 import { updateEvent } from "@/actions/events/eventAction"
 import { Event } from "@/types/types"
 import { useEventContext } from "@/context/eventsContext"

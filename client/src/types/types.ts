@@ -8,12 +8,14 @@ export interface Folder{
     _id: string | null,
     folderName: string,
     createdAt:string | null,
-    folderRoute:string | null,
 }
 export interface Note{
     noteName:string,
-    noteId:string,
+    _id:string,
     contentType:string,
+    fileSize:string,
+    fileType:string,
+    folderName:string,
     downloadUrl: string,
 }
 export interface NoteResponse{
@@ -21,6 +23,8 @@ export interface NoteResponse{
     folderId: FormDataEntryValue,
     userId:FormDataEntryValue,
     contentType: string,
+    fileSize: string,
+    fileType:string,
     downloadUrl: string,
 }
 export interface Metadata {
