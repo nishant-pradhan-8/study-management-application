@@ -41,7 +41,6 @@ export default function useProfileUpdate({
         }
       } else {
         const formData = new FormData();
-
         formData.append("profilePicture", profilePictureChanged);
         formData.append("userId", user._id);
         const res = await nextBackEndApiCall("/api/user", "POST", formData);
@@ -81,7 +80,6 @@ export default function useProfileUpdate({
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         const img = new Image();
-        console.log("went");
         img.onload = function () {
           if (img.width <= 600 && img.height <= 600) {
             console.log("Image is under 600x600.");
@@ -104,12 +102,11 @@ export default function useProfileUpdate({
     setUpdate((val) => ({ ...val, profilePicture: "" } as User));
     setProfilePictureChanged("Delete");
   };
-  
+
   useEffect(() => {
-    
     setUpdate(user);
   }, [user]);
-  
+
   const handleUpdate = (field: keyof User, value: string) => {
     setUpdate((val) => (val ? { ...val, [field]: value } : null));
     setChangedFields((val) => {
@@ -121,5 +118,16 @@ export default function useProfileUpdate({
     });
   };
 
-  return {changedFields,update, tempUrl, saving, imageSizeExceeded, profilePictureChanged, handleUpdateProfileDetails,handleUpdate, handleProfilePictureDelete, handleProfilePictureUpdate}
+  return {
+    changedFields,
+    update,
+    tempUrl,
+    saving,
+    imageSizeExceeded,
+    profilePictureChanged,
+    handleUpdateProfileDetails,
+    handleUpdate,
+    handleProfilePictureDelete,
+    handleProfilePictureUpdate,
+  };
 }

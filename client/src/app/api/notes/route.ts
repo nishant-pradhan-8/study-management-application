@@ -6,6 +6,7 @@ import { uploadBytes } from "firebase/storage";
 import { NoteResponse } from "@/types/types";
 import { deleteObject } from "firebase/storage";
 import { formatFileSize } from "@/utils/utils";
+import { FileSelection } from "@/hooks/useMultipleSelection";
 export async function POST(request: Request) {
     try {
       const formData: FormData = await request.formData();
@@ -78,11 +79,70 @@ export async function POST(request: Request) {
         }
       );
     }
+}export async function DELETE(request: Request) {
+  try {
+    const req = await request.json();
+
+    const { userId, notesToDelete }: { userId: string; notesToDelete: FileSelection[] } = req;
+
+    if (!userId || !Array.isArray(notesToDelete) || notesToDelete.length === 0) {
+      return NextResponse.json(
+        { status: "error", message: "Invalid userId or note list", data: null },
+        { status: 400 }
+      );
+    }
+
+    const failedNotes: string[] = [];
+
+    await Promise.all(
+      notesToDelete.map(async (note) => {
+        try {
+          if (!note.folderId || !note.fileName) {
+            throw new Error("Invalid note details"); 
+          }
+          const storageRef: StorageReference = ref(
+            storage,
+            `Students/${userId}/${note.folderId}/${note.fileName}`
+          );
+          await deleteObject(storageRef);
+        } catch (error: any) {
+          console.error(`Error deleting file ${note.fileId || "unknown"}:`, error);
+          if (note.fileId) failedNotes.push(note.fileId);
+        }
+      })
+    );
+
+    if (failedNotes.length > 0) {
+      return NextResponse.json(
+        {
+          status: "partial_success",
+          message: `Some notes failed to delete: ${failedNotes.join(", ")}`,
+          data:null
+        },
+        { status: 200 } 
+      );
+    }
+
+    return NextResponse.json(
+      { status: "success", message: "Files deleted successfully in Firebase", data: null },
+      { status: 200 }
+    );
+
+  } catch (e: any) {
+    console.error("Error deleting the file:", e);
+    return NextResponse.json(
+      { status: "error", message: "Internal Server Error", data: null },
+      { status: 500 }
+    );
+  }
 }
+
+/*
+
 export async function DELETE(request:Request){
   const req = await request.json();
   
-  const { userId, folderId, noteName } = req;
+  const { userId, folderIds, noteNames } = req;
 
   try {
   
@@ -100,4 +160,4 @@ export async function DELETE(request:Request){
       { status: 500 }
     );
   }
-}
+}*/

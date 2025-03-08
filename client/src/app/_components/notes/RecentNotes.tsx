@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import { useNoteContext } from "@/context/notesContext";
-import NotesSkeleton from "../skeletons/notesSkeleton";
 import { useEffect } from "react";
 import { getLastViewedNotes } from "@/actions/notes/noteAction";
 import useViewFile from "@/hooks/notes/useViewFile";
@@ -11,22 +10,58 @@ import useViewInfo from "@/hooks/useViewInfo";
 import { getNoteInfo } from "@/actions/notes/noteAction";
 import { useUserContext } from "@/context/userContext";
 import DeletingProcess from "../deletingProcess";
+import ShareFile from "./shareFile";
+import useOverlayDialog from "@/hooks/useOverlayDialog";
+import TableLoadingSkeleton from "../skeletons/tableSkeleton";
+import useMultipleSelection from "@/hooks/useMultipleSelection";
+import { useFolderContext } from "@/context/folderContext";
+import DeleteBarNote from "./deleteBarNote";
+import useShareNote from "@/hooks/notes/useShareNote";
+import apiCall from "@/utils/backEndApiHandler";
+
 export default function RecentNotes() {
-  const {
-    recentNotes,
-    fileIcons,
-    setRecentNotes,
-    setActiveFile,
-  } = useNoteContext();
-  const {user, isDeleting} = useUserContext()
+  const { recentNotes, fileIcons, setRecentNotes, setActiveFile, notes } =
+    useNoteContext();
+
+  const { isDeleting, setAlertDialogOpen, setPopUpMessage, user } =
+    useUserContext();
+
   const { handleFileOpen } = useViewFile(setActiveFile, fileIcons);
-  const {selectedMenuId, setSelectedMenuId, menuRef,infoVisible, setInfoVisible} = useMenu()
-  const {info} = useViewInfo(selectedMenuId,getNoteInfo, "note" )
+
+  const {
+    selectedMenuId,
+    setSelectedMenuId,
+    menuRef,
+    infoVisible,
+    setInfoVisible,
+  } = useMenu();
+
+  const { info } = useViewInfo(selectedMenuId, getNoteInfo, "note");
+
+  const { handleDialogOpen, handleDialogclose, tempId, overlayDialogOpen } =
+    useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
+
+  const {
+    fileSelection,
+    setFileSelection,
+    selected,
+    handleFileSelection,
+    setSelected,
+  } = useMultipleSelection();
+
+  const {
+    isSharing,
+    shareList,
+    setShareList,
+    fileSharingError,
+    handleShareNote,
+  } = useShareNote(setPopUpMessage, user);
+
   useEffect(() => {
-    if (!recentNotes) {
+    if (!recentNotes && user) {
       const fetchNotes = async () => {
         const res = await getLastViewedNotes();
-        if (!res.data) {
+        if (!res || !res.data) {
           console.log("No folders to show");
           return;
         }
@@ -34,195 +69,150 @@ export default function RecentNotes() {
       };
       fetchNotes();
     }
-  }, [recentNotes]);
+  }, [recentNotes, user]);
 
-  useEffect(()=>{
-    console.log(selectedMenuId)
-  },[selectedMenuId])
   return (
-    <div className="container py-10 ">
-      <h1 className="heading-1 ">Recently Viewed Study Notes</h1>
+    <div className="py-10 w-full">
+      {selected ? (
+        <DeleteBarNote
+          selected={selected}
+          setSelected={setSelected}
+          fileSelection={fileSelection}
+          setFileSelection={setFileSelection}
+          isSharing={isSharing}
+          handleDialogOpen={handleDialogOpen}
+        />
+      ) : (
+        <h1 className="heading-1 max-sm:text-[20px]">Recently Viewed Notes</h1>
+      )}
 
       {recentNotes ? (
         recentNotes.length > 0 ? (
-          <table
-            className="w-full  rounded-xl border-spacing-y-2 border-separate
-  }"
-          >
-            <thead className="bg-gray-300 mb-2">
-              <tr className="text-left">
-                <th className="rounded-l-xl">Note Name</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>Folder Name</th>
-                <th className="rounded-r-xl"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentNotes.map((note) => (
-                <tr key={note._id}>
-                  <td className="">
-                    <a
-                      onClick={() => handleFileOpen(note)}
-                      className="flex flex-row items-center cursor-pointer"
-                    >
-                      <div className="bg-gray-300 rounded-[8px] p-2 mr-2">
+          <>
+            <table
+              className="w-full  rounded-xl border-spacing-y-2 border-separate
+}"
+            >
+              <thead className="bg-gray-300 mb-2">
+                <tr className="text-left">
+                  <th className="rounded-l-xl w-[50%] max-md:w-[80%] ">
+                    Note Name
+                  </th>
+                  <th className="w-[10%] max-md:hidden">Type</th>
+                  <th className="w-[10%] max-md:hidden">Size</th>
+                  <th className="w-[20] max-md:hidden">Folder Name</th>
+                  <th className="rounded-r-xl w-[10%]  max-md:w-[20%] "></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentNotes.map((note) => (
+                  <tr key={note._id}>
+                    <td className="">
+                      <a
+                        onClick={(e) => {
+                          if (selected) {
+                            e.preventDefault();
+                            handleFileSelection(note);
+                          } else {
+                            handleFileOpen(note);
+                            apiCall("api/note/updateLastViewed", "PATCH", {
+                              noteId: note._id,
+                            });
+                          }
+                        }}
+                        className="flex flex-row items-center cursor-pointer"
+                      >
+                        <div
+                          className={`bg-gray-300 rounded-[8px] ${
+                            selected?.includes(note._id!)
+                              ? " bg-lightBlue"
+                              : "bg-gray-300"
+                          }  p-2 mr-2`}
+                        >
+                          <Image
+                            src={`/images/${fileIcons[note.contentType]}`}
+                            alt="image-icon"
+                            width={20}
+                            height={20}
+                          />
+                        </div>
+                        <p className="max-md:text-[0.9rem] max-sm:w-[8rem] max-sm:text-ellipsis max-sm:overflow-hidden  ">
+                          {note.noteName}
+                        </p>
+                      </a>
+                    </td>
+                    <td className="max-md:hidden">{note.fileType}</td>
+                    <td className="max-md:hidden">{note.fileSize}</td>
+                    <td className="max-md:hidden">
+                      <p className="max-md:text-[0.9rem] w-[7rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
+                        {note.folderName}
+                      </p>
+                    </td>
+                    <td className="flex items-center justify-center">
+                      <a
+                        onClick={() => setSelectedMenuId(note._id)}
+                        className="cursor-pointer relative"
+                      >
                         <Image
-                          src={`/images/${fileIcons[note.contentType]}`}
-                          alt="image-icon"
+                          src="/images/menu.svg"
+                          alt="folder-icon"
                           width={20}
                           height={20}
                         />
-                      </div>
-                     <p>{note.noteName}</p> 
-                    </a>
-                  </td>
-                  <td>{note.fileType}</td>
-                  <td>{note.fileSize}</td>
-                  <td className=""><p className=" overflow-hidden text-ellipsis">{note.folderName}</p></td>
-                  <td className="relative">
-                    <a
-                      onClick={() => setSelectedMenuId(note._id)}
-                      className="cursor-pointer"
-                    >
-                      <Image
-                        src="/images/menu.svg"
-                        alt="folder-icon"
-                        width={20}
-                        height={20}
-                      />
-                      {selectedMenuId === note._id && !isDeleting && <FileMenu info={info} note={note}  infoVisible={infoVisible} setInfoVisible={setInfoVisible} setSelectedMenuId={setSelectedMenuId}  selectedMenuId={selectedMenuId} menuRef={menuRef} /> }
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {selectedMenuId === note._id &&
+                          !isDeleting &&
+                          !isSharing && (
+                            <FileMenu
+                              handleDialogOpen={handleDialogOpen}
+                              info={info}
+                              note={note}
+                              infoVisible={infoVisible}
+                              setInfoVisible={setInfoVisible}
+                              setSelectedMenuId={setSelectedMenuId}
+                              selectedMenuId={selectedMenuId}
+                              menuRef={menuRef}
+                              setSelected={setSelected}
+                              setFileSelection={setFileSelection}
+                              notesArray={recentNotes}
+                            />
+                          )}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {overlayDialogOpen && fileSelection && fileSelection.length > 0 && (
+              <ShareFile
+                fileSelection={fileSelection}
+                handleDialogclose={handleDialogclose}
+                isSharing={isSharing}
+                shareList={shareList}
+                setShareList={setShareList}
+                fileSharingError={fileSharingError}
+                handleShareNote={handleShareNote}
+              />
+            )}
+          </>
         ) : (
-          < div className="flex flex-col items-center justify-center gap-2">
-          <Image src="/images/focused.png" width={300} height={300} alt="study" />
-          <p className="text-gray-600">No Notes To Display. Create a Folder and Upload a Note To Get Started!</p>
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Image
+              src="/images/focused.png"
+              width={300}
+              height={300}
+              alt="study"
+            />
+            <p className="text-gray-600">
+              No Notes To Display. Create a Folder and Upload a Note To Get
+              Started!
+            </p>
           </div>
         )
       ) : (
-        <NotesSkeleton />
+        <TableLoadingSkeleton />
       )}
-         {isDeleting && <DeletingProcess  />} 
+      {isDeleting && <DeletingProcess />}
     </div>
   );
 }
-
-/*
- <th>    
-                <a   className="cursor-pointer">
-                <Image
-                  src="/images/menu.svg"
-                  alt="folder-icon"
-                  width={20}
-                  height={20}
-                />
-                </a>
-                </th>
-"use client";
-import Image from "next/image";
-import { useEffect } from "react";
-import { getLastViewedNotes } from "@/actions/notes/noteAction";
-import { Note } from "@/types/types";
-import { useNoteContext } from "@/context/notesContext";
-import useViewFile from "@/hooks/useViewFile";
-import NotificationSkeleton from "./notificationSkeleton";
-import NotesSkeleton from "./notesSkeleton";
-import { Folders } from "lucide-react";
-import RenameDialog from "./renameDialog";
-import { useFolderContext } from "@/context/folderContext";
-export default function RecentNotes() {
-  const {
-    notes,
-    fileIcons,
-    setRecentNotes,
-    recentNotes,
-    setActiveFile,
-
-  } = useNoteContext();
-  const{folderRenameDialogOpen} = useFolderContext()
-
-  const {handleFileOpen} = useViewFile(setActiveFile, fileIcons)
-
-
-  return (
-    <div>
-      <h1 className="heading-1 my-4">Recent Study Notes</h1>
-      <h2 className="text-[1rem] font-semibold mb-2">Note Name</h2>
-       <div className=" flex flex-col">
- 
-  {recentNotes?
-  recentNotes.length>0?
-  recentNotes.slice(0, 5).map((note) => (
-    <a
-      key={note.noteId}
-      onClick={() => handleFileOpen(note)}
-      className="flex flex-row items-center font-semibold border-t-[1px] last:border-b-[1px] border-gray-400 py-2 w-full cursor-pointer"
-    >
-          <div className="bg-gray-300 rounded-[8px] p-2 mr-2"> 
-          <Image
-        src={`/images/${fileIcons[note.contentType]}`}
-     
-        alt="image-icon"
-        width={20}
-        height={20}
-       
-      />
-              </div>
-    
-      {note.noteName}
-    </a>
-  ))
-
-         :<p>No notes to Show</p>:
-         <NotesSkeleton /> }
-      </div>
-     
-    </div>
-  );
-
-
-
-
-
-
-
-
-       <td className="w-[22rem]">
-                    <a
-                      onClick={() => handleFileOpen(note)}
-                      className="flex flex-row items-center cursor-pointer"
-                    >
-                      <div className="bg-gray-300 rounded-[8px] p-2 mr-2">
-                        <Image
-                          src={`/images/${fileIcons[note.contentType]}`}
-                          alt="image-icon"
-                          width={20}
-                          height={20}
-                        />
-                      </div>
-                     <p className="w-[18rem] overflow-hidden text-ellipsis">{note.noteName}</p> 
-                    </a>
-                  </td>
-                  <td>{note.fileType}</td>
-                  <td>{note.fileSize}</td>
-                  <td className="w-[19rem]"><p className="w-[19rem] overflow-hidden text-ellipsis">{note.folderName}</p></td>
-                  <td className="relative">
-                    <a
-                      onClick={() => setSelectedMenuId(note._id)}
-                      className="cursor-pointer"
-                    >
-                      <Image
-                        src="/images/menu.svg"
-                        alt="folder-icon"
-                        width={20}
-                        height={20}
-                      />
-                      {selectedMenuId === note._id && !isDeleting && <FileMenu info={info} note={note}  infoVisible={infoVisible} setInfoVisible={setInfoVisible} setSelectedMenuId={setSelectedMenuId}  selectedMenuId={selectedMenuId} menuRef={menuRef} /> }
-                    </a>
-                  </td>
-}*/

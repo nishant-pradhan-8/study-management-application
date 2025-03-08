@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 const useFileValidation = ()=>{
-    const fileValidation = (files:File[],acceptedFileTypes:string[],setFileRejected:Dispatch<SetStateAction<boolean>>,setFileSizeExceeded:Dispatch<SetStateAction<boolean>>)=>{
+    const fileValidation = (files:File[],acceptedFileTypes:string[],setPopUpMessage:Dispatch<SetStateAction<{success:boolean, message:string} | null>>)=>{
       const formData:FormData = new FormData();
       for(let i = 0; i<files.length; i++){
           const fileSizeInMB = Number((files[i].size / (1024 * 1024)).toFixed(2)); 
@@ -9,16 +9,18 @@ const useFileValidation = ()=>{
                formData.append('file', files[i]);
             }else{
              if(!acceptedFileTypes.includes(files[i].type)){
-               setFileRejected(true)
+               setPopUpMessage({success:false,message:"Some File couldn't be Uploaded due to Unsupported Format"})
              }else{
-              setFileSizeExceeded(true)
+              setPopUpMessage({success:false,message:"Some File couldn't be Uploaded due to Large Size"})
              }
             }
         } 
-     
+        setInterval(()=>{
+          setPopUpMessage(null)
+        },5000)
         return formData
     }
-
+   
     return {fileValidation}
 
 }

@@ -64,7 +64,6 @@ export interface UploadList{
 export interface User{
     _id:string,
     profilePicture:string,
-    userName:string,
     firstName:string,
     lastName:string,
     email:string
@@ -74,15 +73,19 @@ export interface User{
 export interface SharedNotes{
     _id:string,
     noteName: string,
+    fileType:string,
+    fileSize:string;
     contentType:  string,
     downloadUrl: string,
     sharedBy: string,
-    receivedBy: string
+  
 }
 
 export interface NoteSharing{
-
+    _id:string,
     noteName: string,
+    fileType:string,
+    fileSize:string,
     contentType:  string,
     downloadUrl: string,
     sharedBy: string,
@@ -113,4 +116,17 @@ export interface Notification{
     notificationType:string,
     read:boolean,
     createdAt:string
+}
+
+
+export interface FolderMenuPosition{
+    top:string,
+    bottom:string,
+    left:string,
+    right:string
+}
+
+export interface sharedNotesToDelete{
+    _id:string, 
+    name:string
 }

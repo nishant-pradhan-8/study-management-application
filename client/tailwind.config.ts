@@ -62,6 +62,14 @@ export default {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+		  screens: {
+			'max-sm': { 'max': '425px' },  // For max-width 640px
+			'max-md': { 'max': '768px' },  // For max-width 768px
+			'max-lg': { 'max': '1024px' },
+			'max-xl': { 'max': '1080px' },
+			'max-580' :{ 'max': '580px' },
+			'max-880':{ 'max': '880px' },
+		  },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -92,4 +100,5 @@ export default {
   	}
   },
   plugins: [require("tailwindcss-animate")],
+  
 } satisfies Config;

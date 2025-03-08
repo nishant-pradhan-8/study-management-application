@@ -26,11 +26,13 @@ export const updateAccessCount = async(folderId:string | null) =>{
    await apiCall(`/api/folder/updateFolderAccessCount`, "PATCH", {folderId});
 }
 
-export const deleteFolder = async(itemId:string, userId:string) =>{
-   await nextBackEndApiCall('/api/folder',"DELETE",{folderId:itemId,userId })
-   const {data} = await apiCall(`/api/folder/deleteFolder`, "DELETE", {folderId:itemId});
+export const deleteFolder = async(itemId:string[], userId:string) =>{
+   const res = await nextBackEndApiCall('/api/folder',"DELETE",{folderIds:itemId,userId })
+   if(res.data.status==='error'){
+    return res.data
+   }
+   const {data} = await apiCall(`/api/folder/deleteFolders`, "DELETE", {folderIds:itemId});
    return data
-   
 }
 
 export const getFrequentlyAccessedFolders = async() =>{

@@ -4,7 +4,7 @@ import { UploadList } from "@/types/types";
 import { Dispatch } from "react";
 import { SetStateAction } from "react";
 import { Folder } from "@/types/types";
-
+import { useState } from "react";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -67,11 +67,30 @@ export const validateFolderName = (name: string, currentFolders:Folder[] | null)
     return `Folder "${name}" already exists.`
   }
   const forbiddenChars = /[\/\\:*?"<>|#&%]/;
-
   if (!name) return "Folder name cannot be empty.";
   if (name.length > 255) return "Folder name must be under 255 characters.";
   if (forbiddenChars.test(name)) return "Folder name contains invalid characters.";
   if (/^\.+$/.test(name)) return "Folder name cannot contain only dots.";
-  
   return ""; 
 };
+
+export const validatePassword = (password: string | null): string | null => {
+  if(!password){
+    return "Please Create a Password."
+  }
+  password = password.trim();
+  if (password.length < 8) return "Password must be at least 8 characters long.";
+  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter.";
+  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter.";
+  if (!/\d/.test(password)) return "Password must contain at least one number.";
+  if (!/[@$!%*?&]/.test(password)) return "Password must contain at least one special character.";
+  if (/\s/.test(password)) return "Password must not contain spaces.";
+  return null;
+};
+
+export const folderNameToFolderId = (folders:Folder[] | null, folderName:string)=>{
+  const folderId:string | null = folders?.find(folder=>folder.folderName === folderName)?._id || null
+  return folderId
+}
+
+export  const accessToken:string = ""

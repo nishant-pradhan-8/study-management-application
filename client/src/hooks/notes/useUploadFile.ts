@@ -1,33 +1,32 @@
 import { useState, Dispatch, SetStateAction } from "react";
-import { Note, UploadList, User, NoteResponse } from "@/types/types";
+import { Note, UploadList, User, NoteResponse, Folder } from "@/types/types";
 import useFileValidation from "./useFileValidation";
 import { manageUploadList } from "@/utils/utils";
 import nextBackEndApiCall from "@/utils/nextBackEndApi";
 import apiCall from "@/utils/backEndApiHandler";
-const useUploadFile = (  
+
+const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
+  const uploadNotes = async (
+    files: File[] | null,
+    repeatedFile: File[] | null,
+    folderId: string | null,
+    setNotes: Dispatch<SetStateAction<Note[] | null>>,
+    user: User | null,
+    setUploadList: Dispatch<SetStateAction<UploadList[]>>,
+    notes: Note[] | null,
+    setRepeatedFile: Dispatch<SetStateAction<File[] | null>>,
+    setHoldingFiles: Dispatch<SetStateAction<File[] | null>>,
+    setIsUploading: Dispatch<SetStateAction<boolean>>,
+    setErrorDuringUpload: Dispatch<SetStateAction<boolean>>,
+    setPopUpMessage:Dispatch<SetStateAction<{success:boolean, message:string} | null>>,
+    uploadList: UploadList[],
    
+    folders: Folder[] | null
   ) => {
-    
-        const uploadNotes = async (
-        files: File[] | null,
-        repeatedFile: File[] | null,
-        folderId: string | null,
-        setNotes: Dispatch<SetStateAction<Note[] | null>>,
-        user: User | null,
-        setUploadList: Dispatch<SetStateAction<UploadList[]>>,
-        notes: Note[] | null,
-        setRepeatedFile: Dispatch<SetStateAction<File[] | null>>,
-        setHoldingFiles: Dispatch<SetStateAction<File[] | null>>,
-        setIsUploading:Dispatch<SetStateAction<boolean>>,
-        setErrorDuringUpload:Dispatch<SetStateAction<boolean>>,
-         setFileRejected: Dispatch<SetStateAction<boolean>>,
-        uploadList: UploadList[],
- setFileSizeExceeded: Dispatch<SetStateAction<boolean>>
-  ) => {
-    if(!files && !repeatedFile){
-        return console.log("Atleast one file is required for upload!")
+    if (!files && !repeatedFile) {
+      return console.log("Atleast one file is required for upload!");
     }
-   
+
     const acceptedFileTypes = [
       "application/pdf", // PDF
       "application/msword", // DOC
@@ -43,25 +42,26 @@ const useUploadFile = (
       "video/x-matroska", // MKV
     ];
 
-    const {fileValidation} = useFileValidation()
+    const { fileValidation } = useFileValidation();
 
     if (files || repeatedFile) {
-      console.log(repeatedFile, 'rf')
-      console.log(files,'hf')
-     
+      setProgressOpen(true);
+
       setErrorDuringUpload(false);
       setIsUploading(true);
-      setFileRejected(false);
-      setFileSizeExceeded(false);
+      
 
       /*Logic to check repeated File*/
-      const uploadedFileName: string[] = notes && notes.map((note) => note.noteName) || [];
-      const repeatedFileList: File[] = files && files.filter((file) =>
-        uploadedFileName.includes(file.name)
-      ) || [];
-      let holdingFiles: File[] = files &&files.filter(
-        (file) => !uploadedFileName.includes(file.name)
-      )|| [];
+      const uploadedFileName: string[] =
+        (notes && notes.map((note) => note.noteName)) || [];
+      const repeatedFileList: File[] =
+        (files &&
+          files.filter((file) => uploadedFileName.includes(file.name))) ||
+        [];
+      let holdingFiles: File[] =
+        (files &&
+          files.filter((file) => !uploadedFileName.includes(file.name))) ||
+        [];
       if (repeatedFileList.length > 0) {
         setHoldingFiles(holdingFiles);
         setRepeatedFile(repeatedFileList);
@@ -76,17 +76,25 @@ const useUploadFile = (
 
       uploadList && setUploadList(tempUploadList);
 
-      const formData: FormData = fileValidation(files || [], acceptedFileTypes,setFileRejected,setFileSizeExceeded);
+      const formData: FormData = fileValidation(
+        files || [],
+        acceptedFileTypes,
+        setPopUpMessage
+      );
       let repeatedFilesFormData;
       if (repeatedFile) {
-        repeatedFilesFormData = fileValidation(repeatedFile, acceptedFileTypes,setFileRejected,setFileSizeExceeded);
+        repeatedFilesFormData = fileValidation(
+          repeatedFile,
+          acceptedFileTypes,
+          setPopUpMessage
+        );
       }
 
       if (user && folderId) {
         formData.append("folderId", folderId);
         formData.append("userId", user._id);
       }
-      console.log(repeatedFilesFormData,'rffd')
+      console.log(repeatedFilesFormData, "rffd");
       const repeatedUploadedFiles: FormDataEntryValue[] =
         repeatedFilesFormData?.getAll("file") || [];
 
@@ -96,14 +104,17 @@ const useUploadFile = (
         }
       }
       const uploadedFiles: FormDataEntryValue[] = formData.getAll("file");
-      console.log(uploadedFiles, 'uf')
+      console.log(uploadedFiles, "uf");
       if (uploadedFiles.length !== 0) {
-        const response = await nextBackEndApiCall("/api/notes",'POST',formData)
-        console.log(response, 'response')
+        const response = await nextBackEndApiCall(
+          "/api/notes",
+          "POST",
+          formData
+        );
+        console.log(response, "response");
         if (!response.error) {
-          
           const responseNotes = response.data.data;
-          console.log(response.data.data, 'responseNotes')
+          console.log(response.data.data, "responseNotes");
           let repeatedFileNames = repeatedUploadedFiles
             .filter((file) => file instanceof File)
             .map((file) => file.name);
@@ -118,16 +129,19 @@ const useUploadFile = (
           try {
             let finalNoteList;
             if (replacingNotes.length !== 0) {
-              console.log(folderId, 'fd')
+              console.log(folderId, "fd");
               const response = await Promise.all([
-                await apiCall('/api/note/uploadNotes','POST',{newNotes, folderId})
-              ,
-              await apiCall('/api/note/replaceNotes','PUT',{replacingNotes})
-             
+                await apiCall("/api/note/uploadNotes", "POST", {
+                  newNotes,
+                  folderId,
+                }),
+                await apiCall("/api/note/replaceNotes", "PUT", {
+                  replacingNotes,
+                }),
               ]);
-              let uploadedNewNotesData =  response[0];
+              let uploadedNewNotesData = response[0];
               let uploadedNewNotes = uploadedNewNotesData.data.data;
-              let replacedNotesData =  response[1];
+              let replacedNotesData = response[1];
               let replacedNotes = replacedNotesData.data.data;
 
               const modifiedNewNotes: Note[] = uploadedNewNotes.map(
@@ -136,9 +150,9 @@ const useUploadFile = (
                     noteName: note.noteName,
                     _id: note._id,
                     contentType: note.contentType,
-                    fileSize:note.fileSize,
+                    fileSize: note.fileSize,
                     fileType: note.fileType,
-                    folderName:note.folderName,
+                    folderName: note.folderName,
                     downloadUrl: note.downloadUrl,
                   };
                 }
@@ -149,39 +163,49 @@ const useUploadFile = (
                     noteName: note.noteName,
                     _id: note._id,
                     contentType: note.contentType,
-                    fileSize:note.fileSize,
+                    fileSize: note.fileSize,
                     fileType: note.fileType,
-                    folderName:note.folderName,
+                    folderName: note.folderName,
                     downloadUrl: note.downloadUrl,
                   };
                 }
               );
-              let replacedNoteList = notes && notes.map((note: Note) => {
-                let replacement = modifiedReplacedNotes.find(
-                  (updatedNote) => updatedNote._id=== note._id
-                );
-                return replacement || note;
-              });
-              finalNoteList = [...replacedNoteList || [], ...modifiedNewNotes];
+              let replacedNoteList =
+                notes &&
+                notes.map((note: Note) => {
+                  let replacement = modifiedReplacedNotes.find(
+                    (updatedNote) => updatedNote._id === note._id
+                  );
+                  return replacement || note;
+                });
+              finalNoteList = [
+                ...(replacedNoteList || []),
+                ...modifiedNewNotes,
+              ];
             } else {
-              const response =  await apiCall('/api/note/uploadNotes','POST',{newNotes, folderId})
-           
-              const data = response.data
+              const response = await apiCall("/api/note/uploadNotes", "POST", {
+                newNotes,
+                folderId,
+              });
+
+              const data = response.data;
 
               let updatedNoteList = data.data.map((note: any) => {
                 return {
                   noteName: note.noteName,
                   _id: note._id,
                   contentType: note.contentType,
-                  fileSize:note.fileSize,
+                  fileSize: note.fileSize,
                   fileType: note.fileType,
-                  folderName:note.folderName,
+                  folderName:
+                    folders?.find((folder) => folder._id === note.folderId)
+                      ?.folderName || "",
                   downloadUrl: note.downloadUrl,
                 };
               });
-              finalNoteList = [...notes || [], ...updatedNoteList];
+              finalNoteList = [...(notes || []), ...updatedNoteList];
             }
-          
+
             setNotes(finalNoteList);
           } catch (error: any) {
             setErrorDuringUpload(true);
@@ -193,14 +217,13 @@ const useUploadFile = (
       }
     }
     setIsUploading(false);
-    setHoldingFiles(null)
-    setRepeatedFile(null)
+    setHoldingFiles(null);
+    setRepeatedFile(null);
     setTimeout(() => {
       setUploadList([]);
-      setFileRejected(false);
-      setFileSizeExceeded(false);
+      
     }, 5000);
   };
-  return {uploadNotes}
+  return { uploadNotes};
 };
-export default useUploadFile
+export default useUploadFile;

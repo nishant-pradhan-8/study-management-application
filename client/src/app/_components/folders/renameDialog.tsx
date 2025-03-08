@@ -1,53 +1,36 @@
 "use client";
-import { useUserContext } from "@/context/userContext";
-import { SetStateAction } from "preact/compat";
-import { Dispatch, useEffect, useState } from "react";
+
+import { useState } from "react";
 import { useFolderContext } from "@/context/folderContext";
 import { renameFolder } from "@/actions/folders/folderAction";
 import { Folder } from "@/types/types";
 import { useNoteContext } from "@/context/notesContext";
 export default function RenameDialog({
   tempId,
-  handleDialogclose
-}:{
-  tempId:string | null,
-  handleDialogclose: ()=>void
+  handleDialogclose,
+}: {
+  tempId: string | null;
+  handleDialogclose: () => void;
 }) {
-  const {
-    newFolderName,
-    setNewFolderName,
-  
-    faf,
-   
-    setFolders,
-    setFaf,
-    
-    folders,
-  } = useFolderContext();
- 
+
+  const { newFolderName, setNewFolderName, faf, setFolders, setFaf, folders } =
+    useFolderContext();
+
   const { setRecentNotes } = useNoteContext();
 
   const [folderRenameError, setFolderRenameError] = useState<boolean>(false);
-/*
-  const closeRenameAlertDialog = () => {
-    setTempId(null);
-    setOverlayDialogOpen(false);
-    setAlertDialogOpen(false);
-  
-  };
-*/
+
   const handleRenameFolder = async () => {
     if (!tempId) {
       return;
     }
     setFolderRenameError(false);
-
     const res = await renameFolder({
       newFolderName: newFolderName,
       folderId: tempId,
     });
-    
-    if (!res.status || res.status === "error") {
+
+    if (!res || !res.status || res.status === "error") {
       setFolderRenameError(true);
       setTimeout(() => {
         setFolderRenameError(false);
@@ -62,7 +45,7 @@ export default function RenameDialog({
         }
         return folder;
       }) || [];
-      
+
     const updatedFolders: Folder[] | null =
       folders?.map((folder) => {
         if (folder._id === tempId) {
@@ -77,10 +60,10 @@ export default function RenameDialog({
     handleDialogclose();
   };
 
-  const handleCloseRenameDialog = ()=>{
-    handleDialogclose()
+  const handleCloseRenameDialog = () => {
+    handleDialogclose();
     setFolderRenameError(false);
-  }
+  };
 
   return (
     <div className="bg-gray-800 p-6 z-50 rounded-xl shadow-lg fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96">

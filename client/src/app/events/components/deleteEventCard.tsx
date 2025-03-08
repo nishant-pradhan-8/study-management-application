@@ -57,7 +57,7 @@ export default function DeleteEventCard(){
         console.log(eventsToDelete)
        },[eventsToDelete])
     return (
-      <Card className="w-[35rem] bg-gray-900 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-50 text-white">
+      <Card className=" bg-gray-900 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-50 text-white  w-[30rem] max-sm:!w-[18rem] max-md:w-[24rem] max-h-[80vh] overflow-y-auto">
             <CardHeader className="p-0 flex flex-row justify-between items-center">
               <div className="flex flex-col gap-2">
               <CardTitle>Delete Events</CardTitle>
@@ -65,7 +65,7 @@ export default function DeleteEventCard(){
               </div>
            <a className="cursor-pointer" onClick={handleEventUpdateAlertClose}><Image src="/images/cross-white.svg" alt="cross" width={25} height={25} /></a>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 max-h-[28rem] overflow-y-scroll custom-scrollbar">
             {events && events.length>0?(
                 events.map((event)=>(
                     <label

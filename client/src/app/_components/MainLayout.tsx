@@ -104,7 +104,7 @@ const HomeLayout = ({children}:{ children: ReactNode}) => {
         
        
         >
-          <AlertDialogOverlay />
+         
           {children}
         </Content>
       </Layout>

@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const userSchema = new mongoose.Schema({
     profilePicture:{
         type:String,
+
     },
 
     firstName:{
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
+
     }, 
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -43,7 +44,7 @@ const userSchema = new mongoose.Schema({
   
     refreshToken:{
         type:String,
-        required:true
+        
     }
     },
     { timestamps: true } 

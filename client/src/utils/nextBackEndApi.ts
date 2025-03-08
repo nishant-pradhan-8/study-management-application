@@ -3,7 +3,8 @@ const nextBackendApi = axios.create({
     baseURL:"http://localhost:3000",
     headers:{
         "Accept": "application/json",
-    }
+    },
+ 
 })
 
 nextBackendApi.interceptors.request.use((config)=>{
@@ -24,12 +25,18 @@ const nextBackEndApiCall = async(url:string,method:"GET" | "POST" | "PATCH" | "P
     
         return { status: "success", data: res.data, error: null }
     
-    }catch(e){
-        return { 
-            status: "error", 
-            error: e instanceof Error ? e.message : "An error occurred", 
-            data: null 
-          };
+    }catch (e) {
+        if (axios.isAxiosError(e)) { 
+           
+            const message = e.response?.data?.message || e.message || "An error occurred";
+            return { status: "error", error: message, data: null };
+        } else if (e instanceof Error) {
+            console.error("Standard error:", e.message);
+            return { status: "error", error: e.message, data: null };
+        } else {
+            console.error("Unknown error:", e);
+            return { status: "error", error: "An unknown error occurred", data: null };
+        }
     }
     }
 export default nextBackEndApiCall

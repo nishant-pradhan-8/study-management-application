@@ -6,7 +6,7 @@ export const getNotification = async () => {
 };
 
 export const markNotificationRead = async () => {
-    const {data} = await apiCall("/api/notification/markNotificatonsRead","PATCH",null)
+    const {data} = await apiCall("/api/notification/markNotificatonsRead","PATCH",{read:true})
     return data
 };
 

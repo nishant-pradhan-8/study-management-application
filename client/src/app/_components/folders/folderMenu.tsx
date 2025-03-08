@@ -1,15 +1,14 @@
+"use client";
 import Image from "next/image";
-import { SetStateAction } from "preact/compat";
-import { Dispatch, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { useFolderContext } from "@/context/folderContext";
-import { Folder } from "@/types/types";
-
+import useDeleteFolders from "@/hooks/folders/useDeleteFolder";
 import { useUserContext } from "@/context/userContext";
-import { deleteFolder } from "@/actions/folders/folderAction";
 import { useNoteContext } from "@/context/notesContext";
-import { Info } from "@/hooks/useViewInfo";
 import FolderInfo from "./folderInfo";
-const FolderMenu = ({
+import { Info } from "@/hooks/useViewInfo";
+
+export default function FolderMenu({
   handleDialogOpen,
   setSelectedMenuId,
   selectedMenuId,
@@ -17,52 +16,41 @@ const FolderMenu = ({
   infoVisible,
   setInfoVisible,
   info,
-  
+  setSelected,
 }: {
-  handleDialogOpen: () => void;
+  handleDialogOpen: () => void | null;
   setSelectedMenuId: Dispatch<SetStateAction<string | null>>;
   selectedMenuId: string | null;
   menuRef: React.RefObject<HTMLDivElement | null>;
   infoVisible: boolean;
   setInfoVisible: Dispatch<SetStateAction<boolean>>;
   info: Info[] | null;
-  
-}) => {
+  setSelected: Dispatch<SetStateAction<string[] | null>>;
+}) {
   if (!selectedMenuId) {
     return;
   }
-  const { faf, setFaf, setFolders, folders } = useFolderContext();
+
+  const { faf, setFaf, setFolders, folders, menuPosition } = useFolderContext();
   const { setRecentNotes } = useNoteContext();
   const { user, setIsDeleting } = useUserContext();
 
-  /*To Delete Folder*/
+  const { handleDeleteFolder } = useDeleteFolders(
+    user,
+    [selectedMenuId],
+    setSelectedMenuId,
+    setIsDeleting,
+    faf,
+    folders,
+    setFolders,
+    setFaf,
+    setRecentNotes
+  );
 
-  const handleDeleteFolder = async () => {
-    if (!user || !selectedMenuId) {
-      return;
-    }
+  const handleSelection = () => {
+    setSelected([selectedMenuId]);
     setSelectedMenuId(null);
-    setIsDeleting(true);
-    await deleteFolder(selectedMenuId, user._id);
-
-    const newRecenFolders: Folder[] =
-      faf?.filter((folder) => folder._id !== selectedMenuId) || [];
-    const newFolders: Folder[] | null =
-      folders?.filter((folder) => folder._id !== selectedMenuId) || null;
-
-    setFolders(newFolders);
-    setFaf(newRecenFolders);
-    setIsDeleting(false);
-    setRecentNotes(null);
   };
-
-  /*To Rename Folder
-  const handleRenameDialog = () => {
-    setTempFolderId(selectedMenuId);
-    setFolderRenameDialogOpen(true);
-    setAlertDialogOpen(true);
-    setSelectedMenuId(null);
-  };*/
 
   const folderMenu = [
     {
@@ -89,13 +77,26 @@ const FolderMenu = ({
       width: 20,
       height: 20,
     },
+    {
+      id: 4,
+      menuIcon: "/images/select.svg",
+      menuName: "Select",
+      action: () => handleSelection(),
+      width: 20,
+      height: 20,
+    },
   ];
 
   return (
     <div
       tabIndex={0}
       ref={menuRef}
-      className={` bg-slate-200 w-[12rem] z-10 px-4  absolute right-[-10.5rem] bottom-[-8rem] rounded-xl`}
+      className={` bg-slate-200 w-[12rem] z-10 px-4  absolute  rounded-xl`}
+      style={{
+        right: menuPosition.right,
+        bottom: menuPosition.bottom,
+        left: menuPosition.left,
+      }}
     >
       <ul className="list-none">
         {folderMenu.map((menu, index) => (
@@ -105,7 +106,9 @@ const FolderMenu = ({
                 menu.action();
               }}
               className={`flex w-full flex-row items-center gap-2 py-3 border-b-[1px] border-gray-400 
-                  ${index === folderMenu.length - 1 ? "border-none" : ""}`}
+                          ${
+                            index === folderMenu.length - 1 ? "border-none" : ""
+                          }`}
             >
               <Image
                 alt={menu.menuIcon}
@@ -121,6 +124,4 @@ const FolderMenu = ({
       </ul>
     </div>
   );
-};
-
-export default FolderMenu;
+}

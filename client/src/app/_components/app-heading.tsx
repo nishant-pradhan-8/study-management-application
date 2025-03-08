@@ -9,9 +9,11 @@ import { markNotificationRead } from "@/actions/notifications/notificationAction
 import FileDisplay from "./notes/fileDisplay";
 import { useNoteContext } from "@/context/notesContext";
 import useCloseDialog from "@/hooks/useAlertDialog";
+import PopUpMessage from "./popUpMessage";
 
 export default function AppHeading() {
-  const { user, setNotifications, notifications } = useUserContext();
+  const { user, setNotifications, notifications, popUpMessage } =
+    useUserContext();
   const { activeFile } = useNoteContext();
   const [unreadNotification, setUnreadNotification] = useState<Notification[]>(
     []
@@ -19,10 +21,12 @@ export default function AppHeading() {
   const { dialogRef, setDialogOpen, dialogOpen } = useCloseDialog();
 
   useEffect(() => {
-    const unreadNotification: Notification[] | undefined =
-      notifications?.filter((not) => !not.read);
-    if (unreadNotification) {
-      setUnreadNotification(unreadNotification);
+    if (notifications && user) {
+      const unreadNotification: Notification[] | undefined =
+        notifications?.filter((not) => !not.read);
+      if (unreadNotification) {
+        setUnreadNotification(unreadNotification);
+      }
     }
   }, [notifications]);
 
@@ -42,7 +46,7 @@ export default function AppHeading() {
 
   return (
     <div className="flex relative flex-row justify-between items-center w-full">
-      <h1 className="font-bold text-2xl text-black">LOGO</h1>
+      <div></div>
       <div className="flex items-center gap-4 ">
         <a onClick={() => handleNotificatonDialogOpen()}>
           <div className="cursor-pointer relative">
@@ -76,6 +80,7 @@ export default function AppHeading() {
       </div>
       {dialogOpen && <Notifications dialogRef={dialogRef} />}
       {activeFile && <FileDisplay />}
+      {popUpMessage && <PopUpMessage />}
     </div>
   );
 }

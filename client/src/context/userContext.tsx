@@ -15,20 +15,22 @@ import { Notification } from "@/types/types";
 interface ContextType {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
+  accessToken:string | null; 
+  setAccessToken:Dispatch<SetStateAction<string | null>>;
   friends: User[] | null;
   setFriends: Dispatch<SetStateAction<User[] | null>>;
   pendingRequests: User[] | null;
   setPendingRequests: Dispatch<SetStateAction<User[] | null>>;
   sentRequests: User[] | null;
   setSentRequests: Dispatch<SetStateAction<User[] | null>>;
-  shareList: string[];
-  setShareList: Dispatch<SetStateAction<string[]>>;
   alertDialogOpen: boolean;
   setAlertDialogOpen: Dispatch<SetStateAction<boolean>>;
   notifications: Notification[] | null;
   setNotifications: Dispatch<SetStateAction<Notification[] | null>>;
   isDeleting:boolean,
    setIsDeleting:Dispatch<SetStateAction<boolean>>;
+   popUpMessage:{success:boolean, message:string} | null,
+   setPopUpMessage:Dispatch<SetStateAction<{success:boolean, message:string} | null>>;
 
   
 }
@@ -37,93 +39,38 @@ const AppContext = createContext<ContextType | undefined>(undefined);
 export default function UserProvider({ children }: { children: ReactNode }) {
   /*User Context*/
   const [user, setUser] = useState<User | null>(null);
-  const [friends, setFriends] = useState<User[] | null>([
-    {
-      _id: "1",
-      userName: "abc",
-      profilePicture: "https://randomuser.me/api/portraits/men/1.jpg",
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-    },
-    {
-      _id: "2",
-      profilePicture: "https://randomuser.me/api/portraits/women/2.jpg",
-      userName: "abc",
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-    },
-    {
-      _id: "3",
-      profilePicture: "https://randomuser.me/api/portraits/men/3.jpg",
-      userName: "abc",
-      firstName: "Michael",
-      lastName: "Brown",
-      email: "michael.brown@example.com",
-    },
-    {
-      _id: "4",
-      profilePicture: "https://randomuser.me/api/portraits/women/4.jpg",
-      userName: "abc",
-      firstName: "Emily",
-      lastName: "Johnson",
-      email: "emily.johnson@example.com",
-    },
-    {
-      _id: "5",
-      profilePicture: "https://randomuser.me/api/portraits/men/5.jpg",
-      userName: "abc",
-      firstName: "David",
-      lastName: "Wilson",
-      email: "david.wilson@example.com",
-    },
-    {
-      _id: "6",
-      profilePicture: "https://randomuser.me/api/portraits/women/6.jpg",
-      userName: "abc",
-      firstName: "Sophia",
-      lastName: "Martinez",
-      email: "sophia.martinez@example.com",
-    },
-    {
-      _id: "7",
-      profilePicture: "https://randomuser.me/api/portraits/men/7.jpg",
-      userName: "abc",
-      firstName: "Daniel",
-      lastName: "Anderson",
-      email: "daniel.anderson@example.com",
-    },
-  ]);
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [friends, setFriends] = useState<User[] | null>(null);
   const [pendingRequests, setPendingRequests] = useState<User[] | null>(null);
   const [sentRequests, setSentRequests] = useState<User[] | null>(null);
-  const [shareList, setShareList] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<Notification[] | null>(
     null
   );
-  
   const [alertDialogOpen, setAlertDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [popUpMessage, setPopUpMessage] = useState<{success:boolean, message:string} | null>(null)
 
   return (
     <AppContext.Provider
       value={{
         user,
         setUser,
+        accessToken,
+        setAccessToken,
         friends,
         setFriends,
         pendingRequests,
         setPendingRequests,
         sentRequests,
         setSentRequests,
-        shareList,
-        setShareList,
+        
         alertDialogOpen,
         setAlertDialogOpen,
         notifications,
         setNotifications,
         isDeleting, 
-        setIsDeleting
+        setIsDeleting,
+        popUpMessage, setPopUpMessage
       }}
     >
       {children}

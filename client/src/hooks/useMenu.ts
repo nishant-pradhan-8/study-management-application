@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 export default function useMenu() {
-  const [selectedMenuId, setSelectedMenuId] = useState<
-    string | null
-  >(null);
+  const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [infoVisible, setInfoVisible] = useState(false)
   useEffect(() => {

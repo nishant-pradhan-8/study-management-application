@@ -8,7 +8,5 @@ export default function Friends(){
             <Requests />
             <FriendsList />
         </div>
-       
-
     )
 }

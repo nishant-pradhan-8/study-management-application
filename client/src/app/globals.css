@@ -20,7 +20,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   height: 100%;
   box-sizing: border-box;
+  overflow-y: scroll;
 }
+
 
 html{
   height: 100%;
@@ -29,7 +31,32 @@ html{
 /*Ant Library*/
 .ant-layout{
   @apply h-full
+
+  
+}.custom-scrollbar {
+  overflow: auto; /* Enable both horizontal & vertical scrolling */
+ /* Prevent content from wrapping */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #4b5563 #d1d5db; /* Thumb & Track */
 }
+
+/* WebKit (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px; /* Set height for horizontal scrollbar */
+  width: 8px;  /* Set width for vertical scrollbar */
+}
+
+/* Style scrollbar thumb (draggable part) */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* Dark gray */
+  border-radius: 10px;
+}
+
+/* Style scrollbar track (background) */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #d1d5db; /* Light gray */
+}
+
 
 @layer base {
   :root {
@@ -55,7 +82,6 @@ html{
   }
 }
 
-
 @layer components {
   .app{
     @apply h-full 
@@ -67,7 +93,7 @@ html{
     @apply text-[24px]
   }
   .folder-card{
-    @apply bg-gray-300 flex p-4 w-[14rem] rounded-xl justify-between items-center 
+    @apply bg-gray-300 flex p-4 rounded-xl justify-between items-center  min-w-[14rem] max-sm:min-w-[12rem]
   }
   .folder-icon-div{
     @apply flex items-center gap-4 font-semibold
@@ -86,7 +112,7 @@ html{
     @apply border-[1px] border-gray-200
   }
   .primary-btn{
-    @apply bg-slate-200 flex flex-row gap-2 py-2 px-4 rounded-xl font-semibold
+    @apply bg-slate-200 flex flex-row gap-2 py-2 px-4 rounded-xl font-semibold items-center
   }
   .alertDialogOverlay{
     background-color: rgb(31 31 31 / 88%);
@@ -113,6 +139,8 @@ html{
  tr td{
   @apply p-2
  }
+
+ 
 }
 /* HTML:  */
 /* HTML: */

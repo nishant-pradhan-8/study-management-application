@@ -3,7 +3,7 @@ import { Folder, NoteResponse } from "@/types/types";
 import { Dispatch, SetStateAction } from "react";
 import { Note, User } from "@/types/types";
 import nextBackEndApiCall from "@/utils/nextBackEndApi";
-
+import { FileSelection } from "@/hooks/useMultipleSelection";
 export const getNotes = async (folderId: string) => {
   const { data } = await apiCall(`/api/folder/${folderId}`, "GET", null);
   return data;
@@ -59,17 +59,23 @@ export const getLastViewedNotes = async()=>{
 
 
 
-export const deleteNote = async(userId:string, noteName:string, folderId:string, noteId:string) =>{
- console.log(noteName)
+export const deleteNotes = async(notesToDelete:FileSelection[],userId:string) =>{
+ 
 const {data} = await nextBackEndApiCall('/api/notes',"DELETE",{
-    userId,
-    folderId,
-    noteName
+    userId, notesToDelete
   } )
-  console.log('a',data)
+  if(data.status==='error'){
+    return data
+  }
+const modifiedNTD = notesToDelete.map((note)=>{
+  return {
+    _id:note.fileId,
+    folderId:note.folderId
+  }
+})
   
-  const res = await apiCall(`/api/note/deleteNote`, "DELETE", {noteId});
-  console.log('res', res)
+  const res = await apiCall(`/api/note/deleteNote`, "DELETE", {notesToDelete:modifiedNTD});
+
   return res
 
 }

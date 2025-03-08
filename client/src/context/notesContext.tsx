@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, RefObject } from "react";
 import { createContext, Dispatch, useState } from "react";
 import { SetStateAction } from "preact/compat";
 import { Note, UploadList, ActiveFile,FileTags } from "@/types/types";
@@ -9,6 +9,7 @@ import { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
 import { useUserContext } from "./userContext";
 import { useFolderContext } from "./folderContext";
 import useUploadFile from "@/hooks/notes/useUploadFile";
+import { useRef } from "react";
 interface ContextType {
   notes: Note[] | null;
   setNotes: Dispatch<SetStateAction<Note[] | null>>;
@@ -32,6 +33,8 @@ interface ContextType {
   recentNotes: Note[] | null;
   setRecentNotes: Dispatch<SetStateAction<Note[] | null>>;
   fileIcons: Record<string, string>;
+  progressOpen:boolean;
+   setProgressOpen:Dispatch<SetStateAction<boolean>>;
   fileTags: FileTags;
     getRootProps: () => DropzoneRootProps;
     getInputProps: () => DropzoneInputProps;
@@ -42,18 +45,16 @@ interface ContextType {
   handleCancelDuplicateUpdate:()=>Promise<void>
   errorDuringUpload:boolean;
   setErrorDuringUpload:Dispatch<SetStateAction<boolean>>;
-  fileRejected: boolean;
-  setFileRejected: Dispatch<SetStateAction<boolean>>;
-  fileSizeExceeded: boolean;
-  setFileSizeExceeded: Dispatch<SetStateAction<boolean>>;
+ 
+  progressDivRef:RefObject<HTMLDivElement | null>
 
 
 }
 const NotesContext = createContext<ContextType | undefined>(undefined);
 
 export default function NotesProvider({ children }: { children: ReactNode }) {
-  const {user} = useUserContext()
-  const {activeFolder} = useFolderContext()
+  const {user, setPopUpMessage} = useUserContext()
+  const {activeFolder, folders} = useFolderContext()
   const [notes, setNotes] = useState<Note[] | null>(null);
   const [displayFile, setDisplayFile] = useState<string | null>(null);
  
@@ -62,12 +63,10 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
   const [holdingFiles, setHoldingFiles] = useState<File[] | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false)
   const [errorDuringUpload, setErrorDuringUpload] = useState<boolean>(false);
-  const [fileRejected, setFileRejected] = useState<boolean>(false);
-  const [fileSizeExceeded, setFileSizeExceeded] = useState<boolean>(false);
+
   const [selectedFileMenu, setSelectedFileMenu] = useState<string | null>(null);
   const [activeFile, setActiveFile] = useState<ActiveFile | null>(null);
- 
-  
+
   const [recentNotes, setRecentNotes] = useState<Note[] | null>(null);
   
   const fileIcons: Record<string, string> = {
@@ -87,6 +86,7 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
     "video/mp4": "mp4.svg",
     "video/x-matroska": "mkv.svg",
   };
+   const [progressOpen, setProgressOpen] = useState<boolean>(false)
   const fileTags: FileTags = {
     iframe: [
       "application/pdf",
@@ -101,10 +101,9 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
     video: ["video/mp4", "video/x-matroska"],
   };
 
-  const {uploadNotes} = useUploadFile(
-    )
+  const {uploadNotes} = useUploadFile(setProgressOpen)
    const onDrop = async(acceptedFiles: File[]): Promise<void> => {
-     console.log("this was trigerred")
+
      await uploadNotes(acceptedFiles,repeatedFile,  activeFolder,
       setNotes,
       user,
@@ -114,10 +113,11 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
       setHoldingFiles,
       setIsUploading,
       setErrorDuringUpload,
-      setFileRejected,
+  
+      setPopUpMessage,
       uploadList,
+    folders,
 
-    setFileSizeExceeded,
   )
   }
   
@@ -132,9 +132,10 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
       setHoldingFiles,
       setIsUploading,
       setErrorDuringUpload,
-      setFileRejected,
+  
+      setPopUpMessage,
       uploadList,
-    setFileSizeExceeded)
+    folders,)
    
   
   }
@@ -150,13 +151,14 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
       setHoldingFiles,
       setIsUploading,
       setErrorDuringUpload,
-      setFileRejected,
+  
+      setPopUpMessage,
       uploadList,
-    setFileSizeExceeded)
+    folders,)
   }
   
   const { getRootProps, getInputProps, isDragActive,open } = useDropzone({ onDrop, noClick:true });
-  
+  const progressDivRef = useRef<HTMLDivElement | null>(null)
 
   return (
     <NotesContext.Provider
@@ -165,7 +167,7 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
         setNotes,
         displayFile,
         setDisplayFile,
-      
+        progressOpen, setProgressOpen,
         uploadList,
         setUploadList,
         holdingFiles,
@@ -179,9 +181,8 @@ export default function NotesProvider({ children }: { children: ReactNode }) {
         fileIcons, fileTags,
         onDrop,handleContinueUploading, handleCancelDuplicateUpdate,
         isUploading, setIsUploading,
-        errorDuringUpload, setErrorDuringUpload,fileRejected, setFileRejected,
-        fileSizeExceeded, setFileSizeExceeded,
-       
+        errorDuringUpload, setErrorDuringUpload,
+        progressDivRef,
         getRootProps, getInputProps, isDragActive,open,
       }}
     >

@@ -1,7 +1,7 @@
-"use client"
-import type { navOptions } from "@/types/types"
-import useCreateFolder from "@/hooks/notes/useViewFile";
-import Image from "next/image"
+"use client";
+import type { navOptions } from "@/types/types";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -10,131 +10,133 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { useUserContext } from "@/context/userContext"
-import { useEffect } from "react"
-import { getUserDetails } from "@/actions/users/usersAction"
-import Link from "next/link"
-import { getNotification } from "@/actions/notifications/notificationAction"
-
-import DeletingProcess from "./deletingProcess";
+  SidebarGroupLabel,
+} from "@/components/ui/sidebar";
+import { useUserContext } from "@/context/userContext";
+import { useEffect } from "react";
+import { getUserDetails } from "@/actions/users/usersAction";
+import Link from "next/link";
+import { getNotification } from "@/actions/notifications/notificationAction";
 import { useFolderContext } from "@/context/folderContext";
 import { showFolders } from "@/actions/folders/folderAction";
 import { routeFormater } from "@/utils/utils";
 import { Folder } from "@/types/types";
 
 export function AppSidebar() {
-  const navOptions:navOptions[] = [
+  const navOptions: navOptions[] = [
     {
-       id: 1,
-       name: 'Home',
-       route: "/",
-       icon: '/images/home-light.svg'
+      id: 1,
+      name: "Home",
+      route: "/",
+      icon: "/images/home-light.svg",
     },
-    { 
+    {
       id: 2,
-      name: 'Study Folders',
-       route: "/study-folders",
-      icon: '/images/folder-light.svg'
-   },
-   { 
-    id: 3,
-    name: 'Friends',
-     route: "/friends",
-    icon: '/images/friends-light.svg'
+      name: "Study Folders",
+      route: "/study-folders",
+      icon: "/images/folder-light.svg",
     },
-    { 
+    {
+      id: 3,
+      name: "Friends",
+      route: "/friends",
+      icon: "/images/friends-light.svg",
+    },
+    {
       id: 4,
-      name: 'Shared Resources',
+      name: "Shared Resources",
       route: "/shared-resources",
-      icon: '/images/sharedResources.svg'
+      icon: "/images/sharedResources.svg",
     },
-    { 
+    {
       id: 5,
-      name: 'Events',
+      name: "Events",
       route: "/events",
-      icon: '/images/calendar.svg'
+      icon: "/images/calendar.svg",
     },
-    { 
-      id: 6,
-      name: 'Study Room',
-      route: "/study-room",
-      icon: '/images/studyRoom.svg'
-    }
-  ]
-  const {setUser,user, notifications, setNotifications, isDeleting} = useUserContext()
-  const {folders, setFolders} = useFolderContext()
-   useEffect(()=>{
-    
-    if(!user){
-      
-      const fetchUserDetails =async()=>{
-        const res = await getUserDetails()
-      
-        if(!res.data){
-          return console.log("Fetching User Data Failed")
+  ];
+  const { setUser, user, notifications, setNotifications} =
+    useUserContext();
+  const { folders, setFolders } = useFolderContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      const fetchUserDetails = async () => {
+        const res = await getUserDetails();
+
+        if (!res || res.status === "error" || !res.data) {
+          router.push("/login");
+          return;
         }
-       
-        setUser(res.data)
-      }
-      fetchUserDetails()
-     
+        setUser(res.data);
+      };
+      fetchUserDetails();
     }
-    if(!notifications){
-      const fetchNotifications = async()=>{
-          const res =  await getNotification()
-         
-          if(!res.data){
-              console.log("Unable to fetch Notifications")
+
+    if (user) {
+      if (!notifications) {
+        const fetchNotifications = async () => {
+          const res = await getNotification();
+          if (!res || !res.data) {
+            console.log("Unable to fetch Notifications");
+            return;
           }
-          setNotifications(res.data)
-   
+          setNotifications(res.data);
+        };
+        fetchNotifications();
       }
-      fetchNotifications()
-     
-  }
-  if (!folders) {
-    const fetchFolders = async () => {
-        const res = await showFolders();
-        if (res.data) {
+      if (!folders) {
+        const fetchFolders = async () => {
+          const res = await showFolders();
+          if (res.data) {
             const modifiedFolders = res.data.map((folder: Folder) => ({
-                ...folder,
-                folderRoute: routeFormater(folder.folderName),
+              ...folder,
+              folderRoute: routeFormater(folder.folderName),
             }));
             setFolders(modifiedFolders);
-        } else {
+            return
+          } else {
             console.log("No folders to show");
-        }
-    };
-    fetchFolders();
-}
-      
-    },[user, notifications, folders])
-   
+            return
+          }
+        };
+        fetchFolders();
+      }
+    }
+  }, [user, notifications, folders]);
 
   return (
-    <Sidebar  >
+    <Sidebar>
       <SidebarContent className="relative">
+        <SidebarGroup className="mt-[1.5rem] flex flex-row gap-2 items-center">
+          <Image src="/images/logo.svg" alt="logo" width={40} height={50} />
+          <h1 className="font-medium text-2xl text-black">StudyBuddy</h1>
+        </SidebarGroup>
         <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navOptions.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton asChild>
                     <Link href={item.route}>
-                       <Image src={item.icon} width={20} height={20} className="brightness-0" alt='nav-icons' /> 
+                      <Image
+                        src={item.icon}
+                        width={20}
+                        height={20}
+                        className="brightness-0"
+                        alt="nav-icons"
+                      />
                       <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {isDeleting && <DeletingProcess  />} 
       </SidebarContent>
-      
     </Sidebar>
-  )
+  );
 }

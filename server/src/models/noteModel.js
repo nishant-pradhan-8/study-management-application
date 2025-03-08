@@ -4,6 +4,9 @@ const noteSchema = mongoose.Schema({
         type:String,
         required: true
     },
+    profilePicture:{
+        type:String,
+    },
     contentType:{
         type:String,
         required:true,

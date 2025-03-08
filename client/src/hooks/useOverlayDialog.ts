@@ -4,8 +4,9 @@ import { Dispatch, useState } from "react";
 export default function useOverlayDialog(selectedMenuId:string | null, setAlertDialogOpen:Dispatch<SetStateAction<boolean>>, setSelectedMenuId:Dispatch<SetStateAction<string | null>>){
     const [tempId, setTempId] = useState<string | null>(null)
     const [overlayDialogOpen, setOverlayDialogOpen] = useState<boolean>(false)
-    const handleDialogOpen = () => {
+    function handleDialogOpen  () {
         setTempId(selectedMenuId);
+        console.log('went')
         setOverlayDialogOpen(true);
         setAlertDialogOpen(true);
         setSelectedMenuId(null);

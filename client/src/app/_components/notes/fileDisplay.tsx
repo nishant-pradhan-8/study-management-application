@@ -9,29 +9,38 @@ import { useNoteContext } from "@/context/notesContext";
 export default function FileDisplay(){
     const {activeFile, setActiveFile, fileTags} =useNoteContext()
   
-    const renderView = ()=>{
-      if(activeFile && fileTags.iframe.includes(activeFile?.contentType) ){
-        return (
-          <DocumentViewer
-            url={activeFile.fileUri}
-            className="fixed top-0 left-0 h-full w-full z-40 pt-16"
-          />
-        )
-      }else if(activeFile && fileTags.img.includes(activeFile?.contentType)){
-        return (
-          <img src={activeFile.fileUri} className="fixed top-[50%] left-[50%] max-w-[768px] max-h-[38rem] transform -translate-x-1/2 -translate-y-1/2 z-40 pt-16" />
-        )
-      }else if(activeFile && fileTags.video.includes(activeFile?.contentType)){
-        return (
-          <video className="fixed top-[50%] left-[50%] max-w-[768px] transform -translate-x-1/2 -translate-y-1/2 z-40 pt-16" controls>
-            <source src={activeFile.fileUri} />
-          </video>
-        )
-    }
-  }
+    const renderView = () => {
+      if (activeFile && activeFile.fileUri) { // Add this check
+          if (fileTags.iframe.includes(activeFile?.contentType)) {
+              return (
+                  <DocumentViewer
+                      url={activeFile.fileUri}
+                      className="fixed top-0 left-0 h-full w-full z-40 pt-16"
+                  />
+              );
+          } else if (fileTags.img.includes(activeFile?.contentType)) {
+              return (
+                  <img
+                      src={activeFile.fileUri}
+                      className="fixed top-[50%] left-[50%] max-w-[768px] max-h-[38rem] transform -translate-x-1/2 -translate-y-1/2 z-40 pt-16"
+                  />
+              );
+          } else if (fileTags.video.includes(activeFile?.contentType)) {
+              return (
+                  <video
+                      className="fixed top-[50%] left-[50%] max-w-[768px] transform -translate-x-1/2 -translate-y-1/2 z-40 pt-16"
+                      controls
+                  >
+                      <source src={activeFile.fileUri} />
+                  </video>
+              );
+          }
+      }
+      return null; // Return null if activeFile.fileUri is missing
+  };
     return (
       <>
-        {activeFile && (
+        {activeFile&& activeFile.fileUri && (
           <>
             <nav className="flex flex-row justify-between items-center fixed top-0 w-full left-0 p-4 z-50">
               <div className="flex flex-row gap-2">

@@ -66,7 +66,9 @@ const {setAlertDialogOpen} = useUserContext()
     setAlertDialogOpen(false)
   }
   return (
-    <Card className="w-[35rem] bg-gray-900 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-50 text-white">
+    <Card className="bg-gray-900 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-50 text-white w-[30rem] max-sm:!w-[18rem] max-md:w-[24rem] 
+max-h-[80vh] overflow-y-auto">
+
       <CardHeader>
         <CardTitle>Create Event</CardTitle>
         <CardDescription>To not forget any Upcoming Events</CardDescription>

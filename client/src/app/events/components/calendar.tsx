@@ -26,7 +26,7 @@ function CalendarApp() {
   const {eventAlertDialogOpen, setEvents, events, eventsChanges} = useEventContext()
 
    useEffect(()=>{
-  
+
     const renderEvents = async()=>{
       const res = await getEvents();
       if(!res.data){
@@ -40,11 +40,12 @@ function CalendarApp() {
        end: event.end ? format(new Date(event.end), "yyyy-MM-dd HH:mm") : "",
      }));
 
-     if(events && events.length>0){
-      events.forEach((event:Event) => {
+    
+     const existingEvents = eventsService.getAll();
+      existingEvents.forEach((event) => {
         eventsService.remove(event.id);
-       });
-     }
+      });
+    
      
      formattedRes.forEach((event:Event) => {
       eventsService.add(event);
@@ -55,6 +56,11 @@ function CalendarApp() {
      renderEvents()
   },[eventsChanges])
 
+  useEffect(()=>{
+    console.log('events',events)
+  },[events])
+
+
 
     
   const calendar = useNextCalendarApp({
@@ -64,7 +70,7 @@ function CalendarApp() {
     callbacks:{
         onEventUpdate(updatedData) {
              const update = async()=>{
-              console.log(updatedData)
+          
               if(!updatedData.title || !updatedData.description || !updatedData.id){
                 console.log('All the fields are required!')
                 return
@@ -85,11 +91,6 @@ function CalendarApp() {
  
    
     
-  useEffect(() => {
-    if (eventsService) {
-      eventsService.getAll(); 
-    }
-}, [eventsService]);
 
   return (
     <div>

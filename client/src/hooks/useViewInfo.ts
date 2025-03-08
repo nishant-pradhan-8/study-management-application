@@ -10,12 +10,11 @@ export default function useViewInfo(selectedMenuId:string| null, getInfo:(select
   const [info, setInfo] = useState<Info[] | null>(null)
    useEffect(()=>{
         if(selectedMenuId){
-          console.log('test')
           const fetchFolderInfo = async()=>{
             const res = await getInfo(selectedMenuId)
-            console.log(res)
             if(!res.data){
               console.log("Unable to get Folder Info")
+              return;
             }
             const data = res.data
             let modifiedInfo:Info[];
@@ -61,12 +60,17 @@ export default function useViewInfo(selectedMenuId:string| null, getInfo:(select
                       info: data.fileType
                     },
                     {
-                      id: 4,
+                      id:4,
+                      infoName: "Folder",
+                      info: data.folderName
+                    },
+                    {
+                      id: 5,
                       infoName: "Uploaded At",
                       info: data.uploadedAt
                     },
                     {
-                        id: 5,
+                        id: 6,
                         infoName: "Last Viewed",
                         info: data.lastViewed
                     }

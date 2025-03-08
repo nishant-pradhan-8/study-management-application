@@ -8,7 +8,7 @@ router.get("/showFolders",folderControllers.showFolders)
       .post("/createFolder",folderControllers.createFolder)
       .patch("/updateFolderAccessCount", folderControllers.countFolderAccess)
       .patch("/renameFolder", folderControllers.renameFolder)
-      .delete("/deleteFolder", folderControllers.deleteFolder)
+      .delete("/deleteFolders", folderControllers.deleteFolders)
       
     
 module.exports = router

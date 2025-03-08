@@ -2,37 +2,58 @@ const SharedFile = require("../models/sharedFilesModel")
 const jwt = require('jsonwebtoken')
 const User = require("../models/userModel")
 const Notification = require("../models/notificationModel")
+const Note = require("../models/noteModel")
+const Folder = require("../models/folderModel")
+
+
 const getSharedNotes = async(req,res)=>{
     try{
-      const authHeader = req.headers.authorization || req.headers.Authorization
-      if(!authHeader) return res.status(401).json({message:"Unauthorized"})
-      const accessToken = authHeader.split(" ")[1]
-      const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-      const receiverId = decoded.userId
-      const receivedNotes = await SharedFile.find({receivedBy:receiverId}).select(" noteName contentType downloadUrl sharedBy receivedBy")
-      return res.status(200).json({message:"Notes Shared Sucessfully",data:receivedNotes})
+      const userId = req.userId
+      const receivedNotes = await SharedFile.find({ receivedBy: userId })
+      .select("noteName fileType fileSize contentType downloadUrl sharedBy")
+      .populate("sharedBy", "firstName"); 
+    
+      const resObj = receivedNotes.map(note => ({
+        _id: note._id,
+        noteName: note.noteName,
+        fileSize: note.fileSize,
+        fileType: note.fileType,
+        contentType: note.contentType,
+        downloadUrl: note.downloadUrl,
+        sharedBy: note.sharedBy ? note.sharedBy.firstName : null 
+      }));
+      
+ 
+      return res.status(200).json({message:"Notes Shared Sucessfully",data:resObj})
     } catch(e){
       return res.status(500).json({message:e.message})
     }
   }
   const shareNote = async (req, res) => {
     try {
+
       const { notes } = req.body;
-  
+      const userId = req.userId;
+
       if (notes.length === 0) {
-        return res.status(400).json({ message: "No Notes to Share" });
+        return res.status(400).json({status:"error", message: "No Notes to Share", data:null });
       }
-  
-      const uploads = await SharedFile.insertMany(notes);
+
+      const senderInfo = await User.findOne({_id:userId}).select("firstName")
+
+      const modifiedNotes = notes.map(({_id,...rest})=>rest)
+       await SharedFile.insertMany(modifiedNotes);
   
   
       const notificationOps = [];
       const userUpdateOps = [];
-  
+      const notesSharedOps = [];
+
       for (const note of notes) {
+
         if (note.receivedBy) {
           const notificationObj = {
-            notification: `${note.sharedBy} sent you study Notes ♥️`,
+            notification: `${senderInfo.firstName} sent you study Notes ♥️`,
             notificationType: "notesShared",
             receiverId: note.receivedBy,
             read: false,
@@ -48,33 +69,132 @@ const getSharedNotes = async(req,res)=>{
               update: { $push: { notifications: notification } }, 
             },
           });
+          notesSharedOps.push({
+             updateOne:{
+              filter:{_id:note._id},
+              update:{$push:{sharedWith:note.receivedBy}}
+             }
+          })
+
         } else {
           console.log(`Invalid userId for note: ${note._id}`);
         }
       }
+
+      const dbAction = await Promise.all([
+        Notification.bulkWrite(notificationOps),
+        User.bulkWrite(userUpdateOps),
+        Note.bulkWrite(notesSharedOps)
+    ]);
+    
+    const userUpdateResult = dbAction[1];
+    
+    if (userUpdateResult.modifiedCount !== notes.filter(note => note.receivedBy).length) {
+        if (notFoundUsers.length > 0) {
+            console.error("Some users were not found during notification update.");
+        }
+    
+        if (userUpdateResult.writeErrors && userUpdateResult.writeErrors.length > 0) {
+            console.error("Errors during user update:", userUpdateResult.writeErrors);
+        }
+    }
+    
   
-      await Notification.bulkWrite(notificationOps);
-      const userUpdates = await User.bulkWrite(userUpdateOps);
-  
-      if (userUpdates.modifiedCount !== notes.filter(note => note.receivedBy).length) { 
-       
-          if(notFoundUsers.length > 0){
-              console.error("Some users were not found during notification update:");
-          }
-  
-          if(userUpdates.result.writeErrors){
-              console.error("Errors during user update:", userUpdates.result.writeErrors);
-          }
-      }
-  
-  
-      return res.status(200).json({
+      return res.status(204).json({
         status: "success",
         message: "Notes Shared Sucessfully",
-        data: uploads,
+        data: null,
       });
     } catch (e) {
       return res.status(500).json({ status: "error", message: e.message, data: null });
     }
   };
-module.exports = {shareNote, getSharedNotes}
+/*
+const transferNote = async(req,res)=>{
+  try{
+    const {note, sharedNoteId} = req.body
+    const userId = req.userId;
+    console.log(note, sharedNoteId)
+    const sharedNotesDeleteOp = await SharedFile.deleteOne({_id:sharedNoteId, receivedBy:userId})
+    if(sharedNotesDeleteOp.deletedCount===0){
+      return res.status(204).json({ status: "success", message: "Shared Note not found for the user", data: null });
+    }
+    console.log(sharedNotesDeleteOp)
+    const noteInsertion = await Note.create(note)
+    console.log(noteInsertion)
+    await Folder.updateOne({_id:note.folderId, userId},{$push:{notes:noteInsertion._id}})
+    return res.status(200).json({
+      status: "success",
+      message: "Note Transferred Succesfully",
+      data: null,
+    });
+  }catch(e){
+    return res.status(500).json({ status: "error", message: `Failed To Transfer Note: ${e.message}`, data: null });
+  }
+
+
+}*/
+
+
+const transferNote = async(req,res)=>{
+  try{
+    const {notesToTransfer} = req.body
+    if(!notesToTransfer || notesToTransfer.length===0){
+      return res.status(400).json({ status: "error", message: "Invalid array of Notes", data: null });
+    }
+    const userId = req.userId;
+
+    const modifiedNotes = notesToTransfer.map(({_id,...rest})=>rest)
+  
+    const noteIds = notesToTransfer.map((_id)=>_id)
+
+    const sharedNotesDeleteOp = await SharedFile.deleteOne({_id:{$in:noteIds}, receivedBy:userId})
+
+    if(sharedNotesDeleteOp.deletedCount===0){
+      return res.status(204).json({ status: "success", message: "Shared Note not found for the user", data: null });
+    }
+ 
+    const noteInsertion = await Note.create(modifiedNotes)
+
+    const insertedIds = noteInsertion.map(note=>note._id)
+
+    await Folder.updateOne({_id:noteInsertion[0].folderId, userId},{$push:{notes:{$each:insertedIds}}})
+
+    return res.status(200).json({
+      status: "success",
+      message: "Note Transferred Succesfully",
+      data: null,
+    });
+    
+  }catch(e){
+    return res.status(500).json({ status: "error", message: `Failed To Transfer Note: ${e.message}`, data: null });
+  }
+
+
+}
+
+const deleteSharedNotes  = async(req,res)=>{
+  try{
+    const {sharedNotesToDelete} = req.body
+    if(!sharedNotesToDelete || sharedNotesToDelete.length===0){
+      res.status(400).json({status:"error", message: "Invalid Shared Note Ids Array", data:null})
+    }
+    const userId = req.userId
+    const sharedNotesIds = sharedNotesToDelete.map(note=>note._id)
+    const deleteOps = await SharedFile.deleteMany({_id:{$in:sharedNotesIds}, receivedBy:userId})
+  
+    if(deleteOps.deletedCount===0){
+      return res.status(404).json({status:"error", message: "Shared Notes not found", data:null})
+    }
+  
+    if(deleteOps.deletedCount!==sharedNotesIds.length){
+      return res.status(200).json({status:"success", message: `${deleteOps.deletedCount} Notes were deleted, some were not found`, data:null})
+    }
+   
+    return  res.status(200).json({status:"success", message: `Shared Notes Deleted Successfully`, data:null})
+  }catch(e){
+    return res.status(500).json({ status: "error", message: `Internal Server Error`, data: null });
+  }
+ 
+}
+module.exports = {shareNote, getSharedNotes, transferNote, deleteSharedNotes}

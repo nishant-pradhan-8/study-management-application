@@ -8,7 +8,7 @@ export default function Home() {
     <div className="app">
         <div>
           <div className='flex justify-center'>
-            <h1 className='title text-bg'>Welcome To StudyBuddy</h1>
+            <h1 className='title text-bg mb-5 max-sm:text-[24px] max-sm:text-center'>Welcome To StudyBuddy</h1>
             </div>
             <div className=''>
             <RecentFolders />

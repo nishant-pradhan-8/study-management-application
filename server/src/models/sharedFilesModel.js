@@ -4,6 +4,14 @@ const sharedFilesSchema = mongoose.Schema({
             type:String,
             required: true
         },
+        fileSize:{
+            type:String,
+            required:true,
+        },
+        fileType:{
+            type:String,
+            required:true,
+        },
      contentType:{
             type:String,
             required:true,
@@ -14,10 +22,12 @@ const sharedFilesSchema = mongoose.Schema({
         },
     sharedBy:{
         type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
         required: true
     },
     receivedBy:{
         type: mongoose.Schema.Types.ObjectId,
+        ref:"User",
         required:true
     }
 }, {timestamps:true})

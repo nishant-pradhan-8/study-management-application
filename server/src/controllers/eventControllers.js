@@ -5,12 +5,8 @@ const addEvents = async(req,res)=>{
     try{
        
         const {title, start,end, description} = req.body
-        console.log(title, start, end, description)
-        const authHeader = req.headers.authorization || req.headers.Authorization 
-        if(!authHeader) return res.status(401).json({message:"Unauthorized"})
-        const accessToken = authHeader.split(" ")[1] 
-        const decoded = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
-        const userId = decoded.userId
+       
+        const userId = req.userId
         if(!title || !start || !end || !description ){
             return res.status(400).json({message:"All Fields are required!"})
         }
@@ -45,11 +41,8 @@ const addEvents = async(req,res)=>{
 }
 const getEvents = async (req, res) => {
     try {
-      const authHeader = req.headers.authorization || req.headers.Authorization;
-      if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
-      const accessToken = authHeader.split(" ")[1];
-      const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-      const userId = decoded.userId;
+     
+      const userId = req.userId;
   
   
       const user = await User.findById(userId).populate('events');
@@ -91,20 +84,7 @@ const updateEvent = async (req, res) => {
                 data: null
             });
         }
-
-      
-        const authHeader = req.headers.authorization || req.headers.Authorization;
-        if (!authHeader) {
-            return res.status(401).json({
-                status: "error",
-                message: "Unauthorized",
-                data: null
-            });
-        }
-
-        const accessToken = authHeader.split(" ")[1];
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        const userId = decoded.userId;
+        const userId = req.userId;
 
         const event = await Event.findOne({ _id: id }).select("userId");
         if (!event) {
@@ -174,17 +154,7 @@ const updateEvent = async (req, res) => {
 const deleteEvents = async(req, res)=>{
     try{
         const {eventsToDelete} = req.body
-        const authHeader = req.headers.authorization || req.headers.Authorization;
-        if (!authHeader) {
-            return res.status(401).json({
-                status: "error",
-                message: "Unauthorized",
-                data: null
-            });
-        }
-        const accessToken = authHeader.split(" ")[1];
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        const userId = decoded.userId;
+        const userId = req.userId;
         const deletion = await Event.deleteMany({_id:{$in: eventsToDelete}, userId:userId})
         await User.updateOne({_id:userId},{$pullAll:{events:eventsToDelete}})
         if(deletion.deletedCount !== eventsToDelete.length){

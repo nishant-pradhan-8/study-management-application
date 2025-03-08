@@ -1,62 +1,94 @@
-'use client'
-import Image from "next/image"
-import { Suspense, useEffect } from "react"
-import { useUserContext } from "@/context/userContext"
-import { getFriendList } from "@/actions/users/usersAction"
-import { Skeleton } from "@/components/ui/skeleton"
+"use client";
+import Image from "next/image";
+import { useEffect } from "react";
+import { useUserContext } from "@/context/userContext";
+import { getFriendList } from "@/actions/users/usersAction";
+import useMenu from "@/hooks/useMenu";
+import FriendsMenu from "./friendsMenu";
+import AvatarWithText from "@/app/_components/skeletons/avatarAndText";
+export default function FriendsList() {
+  const { friends, setFriends } = useUserContext();
+  const { selectedMenuId, setSelectedMenuId, menuRef } = useMenu();
+  const { setIsDeleting, isDeleting, setPopUpMessage } = useUserContext();
 
-export default function FriendsList(){
-  const {friends, setFriends} = useUserContext()
-  useEffect(()=>{
-  
-    if(!friends){
-      const fetchFriends = async()=>{
-        const friends = await getFriendList()
-        if(!friends.data){
-          return console.log("unable to get Friends List")
+  useEffect(() => {
+    if (!friends) {
+      const fetchFriends = async () => {
+        const friends = await getFriendList();
+        if (!friends.data) {
+          return console.log("unable to get Friends List");
         }
-        setFriends(friends)
-      }
-      fetchFriends()
+
+        setFriends(friends.data);
+      };
+      fetchFriends();
     }
-     
-  
-  },[])
-    return(
-  
-  <div className="border-[1px] border-gray-300 p-4 rounded-xl mt-6 ">
-        <h3 className="text-lg font-semibold">Study Buddies</h3>
-      
-        <div className="mt-2 ">
+  }, []);
+  return (
+    <div className="border-[1px] border-gray-300 p-4 rounded-xl mt-6 ">
+      <h3 className="text-lg font-semibold">Study Buddies</h3>
+
+      <div className="mt-2 ">
         <div className="mt-2">
-          {
-            friends?(
-              friends.length>0 ? (
-                friends.map((friend) => (
-                  <div key={friend._id} className="flex items-center justify-between py-4 border-b border-gray-300 last:border-none">
-                    <div className="flex items-center gap-3">
-                      <a><div className='w-8 h-8 bg-black rounded-full'> </div></a>
-                      <div>
-                        <p className="font-medium">{`${friend.firstName} ${friend.lastName}`}</p>
-                        <p className="text-gray-400 text-sm">{friend.email} </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Image src="/images/menu.svg" alt="menu" width={25} height={25} />
+          {friends ? (
+            friends.length > 0 ? (
+              friends.map((friend) => (
+                <div
+                  key={friend._id}
+                  className="flex items-center justify-between py-4 border-b border-gray-300 last:border-none"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={
+                        friend?.profilePicture === "" || !friend
+                          ? "/images/profile.svg"
+                          : friend?.profilePicture
+                      }
+                      className="rounded-full"
+                      width={30}
+                      height={30}
+                      alt="profile"
+                    />
+                    <div>
+                      <p className="font-medium  w-[8rem] overflow-hidden max-lg:w-[12rem] text-ellipsis max-md: max-580:!w-[7rem]">{`${friend.firstName} ${friend.lastName}`}</p>
+                      <p className="text-gray-400 text-sm w-[8rem] overflow-hidden  max-lg:w-[12rem] max-580:!w-[7rem] text-ellipsis">
+                        {friend.email}{" "}
+                      </p>
                     </div>
                   </div>
-                ))
-              ):(<p>No Friends To Show</p>)
-            ):  (<Skeleton className="w-[100px] h-[20px] rounded-full" />
+                  <div className="text-right relative">
+                    <a
+                      className="cursor-pointer"
+                      onClick={() => setSelectedMenuId(friend._id)}
+                    >
+                      <Image
+                        src="/images/menu.svg"
+                        alt="menu"
+                        width={25}
+                        height={25}
+                      />
+                    </a>
+
+                    {selectedMenuId === friend._id && !isDeleting && (
+                      <FriendsMenu
+                        menuRef={menuRef}
+                        setIsDeleting={setIsDeleting}
+                        selectedMenuId={selectedMenuId}
+                        setSelectedMenuId={setSelectedMenuId}
+                        setPopUpMessage={setPopUpMessage}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 ">No Friends To Show</p>
             )
-          }
-
-</div>
-
-          </div>
-        
+          ) : (
+            <AvatarWithText />
+          )}
         </div>
-  
-      
-    )
+      </div>
+    </div>
+  );
 }
