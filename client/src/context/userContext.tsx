@@ -3,20 +3,19 @@ import React, {
   createContext,
   useContext,
   useState,
-  useRef,
   ReactNode,
   Dispatch,
   SetStateAction,
 } from "react";
 
-import {User } from "@/types/types";
+import { User } from "@/types/types";
 import { Notification } from "@/types/types";
 
 interface ContextType {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
-  accessToken:string | null; 
-  setAccessToken:Dispatch<SetStateAction<string | null>>;
+  accessToken: string | null;
+  setAccessToken: Dispatch<SetStateAction<string | null>>;
   friends: User[] | null;
   setFriends: Dispatch<SetStateAction<User[] | null>>;
   pendingRequests: User[] | null;
@@ -27,19 +26,18 @@ interface ContextType {
   setAlertDialogOpen: Dispatch<SetStateAction<boolean>>;
   notifications: Notification[] | null;
   setNotifications: Dispatch<SetStateAction<Notification[] | null>>;
-  isDeleting:boolean,
-   setIsDeleting:Dispatch<SetStateAction<boolean>>;
-   popUpMessage:{success:boolean, message:string} | null,
-   setPopUpMessage:Dispatch<SetStateAction<{success:boolean, message:string} | null>>;
-
-  
+  isDeleting: boolean;
+  setIsDeleting: Dispatch<SetStateAction<boolean>>;
+  popUpMessage: { success: boolean; message: string } | null;
+  setPopUpMessage: Dispatch<
+    SetStateAction<{ success: boolean; message: string } | null>
+  >;
 }
 const AppContext = createContext<ContextType | undefined>(undefined);
 
 export default function UserProvider({ children }: { children: ReactNode }) {
-  /*User Context*/
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [friends, setFriends] = useState<User[] | null>(null);
   const [pendingRequests, setPendingRequests] = useState<User[] | null>(null);
   const [sentRequests, setSentRequests] = useState<User[] | null>(null);
@@ -48,7 +46,10 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   );
   const [alertDialogOpen, setAlertDialogOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [popUpMessage, setPopUpMessage] = useState<{success:boolean, message:string} | null>(null)
+  const [popUpMessage, setPopUpMessage] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   return (
     <AppContext.Provider
@@ -63,14 +64,15 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         setPendingRequests,
         sentRequests,
         setSentRequests,
-        
+
         alertDialogOpen,
         setAlertDialogOpen,
         notifications,
         setNotifications,
-        isDeleting, 
+        isDeleting,
         setIsDeleting,
-        popUpMessage, setPopUpMessage
+        popUpMessage,
+        setPopUpMessage,
       }}
     >
       {children}

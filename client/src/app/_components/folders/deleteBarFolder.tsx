@@ -13,7 +13,6 @@ export default function DeleteBar({
   setSelected: Dispatch<SetStateAction<string[] | null>>;
   setSelectedMenuId: Dispatch<SetStateAction<string | null>>;
 }) {
-
   const { user, setIsDeleting, isDeleting } = useUserContext();
   const { faf, folders, setFolders, setFaf } = useFolderContext();
   const { setRecentNotes } = useNoteContext();
@@ -38,7 +37,7 @@ export default function DeleteBar({
   return (
     <div className="w-full bg-gray-300 h-8 flex flex-row gap-2 rounded-[4px] items-center">
       <button
-        disabled={isDeleting }
+        disabled={isDeleting}
         onClick={() => setSelected(null)}
         className="cursor-pointer hover:bg-slate-50 h-full rounded-full px-1"
       >
@@ -50,7 +49,7 @@ export default function DeleteBar({
 
       <button
         onClick={handleMultipleDelete}
-        disabled={isDeleting || selected?.length===0}
+        disabled={isDeleting || selected?.length === 0}
         className="cursor-pointer hover:bg-slate-50 h-full rounded-full px-2"
       >
         <Image src="/images/delete.svg" width={18} height={18} alt="delete" />

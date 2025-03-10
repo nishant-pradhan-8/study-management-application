@@ -109,13 +109,15 @@ export default function useProfileUpdate({
 
   const handleUpdate = (field: keyof User, value: string) => {
     setUpdate((val) => (val ? { ...val, [field]: value } : null));
-    setChangedFields((val) => {
-      if (user && user[field] === value) {
-        const { [field]: _, ...rest } = val;
-        return rest;
-      }
-      return { ...val, [field]: value };
+    
+    setChangedFields((prev) => {
+      const isSameAsOriginal = user && user[field] === value;
+    
+      return isSameAsOriginal
+        ? Object.fromEntries(Object.entries(prev).filter(([key]) => key !== field))
+        : { ...prev, [field]: value };
     });
+    
   };
 
   return {

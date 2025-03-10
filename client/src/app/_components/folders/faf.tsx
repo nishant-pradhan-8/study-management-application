@@ -9,17 +9,14 @@ import { getFrequentlyAccessedFolders } from "@/actions/folders/folderAction";
 import { Folder } from "@/types/types";
 import React, { useEffect } from "react";
 import { routeFormater } from "@/utils/utils";
-import RenameDialog from "./renameDialog";
 import CreateFolderFaf from "./createFolderFaf";
 import useMultipleSelection from "@/hooks/useMultipleSelection";
-import DeleteBar from "./deleteBarFolder";
 
 export default function RecentFolders() {
-  const { faf, setFaf, setMenuPosition, setInfoPosition } = useFolderContext();
+  const { faf, setFaf } = useFolderContext();
   const { user } = useUserContext();
 
-
-  const { selected, setSelected, handleSelection } = useMultipleSelection();
+  const { selected, handleSelection } = useMultipleSelection();
 
   useEffect(() => {
     if (!faf && user) {
@@ -36,20 +33,18 @@ export default function RecentFolders() {
       };
       fetchFrequentlyAccessedFolders();
     }
-  }, [faf, user]);
+  }, [faf, user, setFaf]);
 
-  
   return (
     <div>
-      
-        <h1 className="heading-1 ">Quick Access</h1>
-     
+      <h1 className="heading-1 ">Quick Access</h1>
+
       <div
         className={`mt-4 flex flex-row justify-start gap-4 overflow-x-scroll custom-scrollbar`}
       >
         {faf ? (
           faf.length > 0 ? (
-            faf?.map((folder, i) => (
+            faf?.map((folder) => (
               <div
                 key={folder._id}
                 className={`folder-card  ${
@@ -89,7 +84,6 @@ export default function RecentFolders() {
         ) : (
           <CardSkeleton />
         )}
-     
       </div>
     </div>
   );

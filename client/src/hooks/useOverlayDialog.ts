@@ -6,7 +6,6 @@ export default function useOverlayDialog(selectedMenuId:string | null, setAlertD
     const [overlayDialogOpen, setOverlayDialogOpen] = useState<boolean>(false)
     function handleDialogOpen  () {
         setTempId(selectedMenuId);
-        console.log('went')
         setOverlayDialogOpen(true);
         setAlertDialogOpen(true);
         setSelectedMenuId(null);

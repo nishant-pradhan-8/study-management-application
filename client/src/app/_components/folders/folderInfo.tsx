@@ -3,7 +3,7 @@ import { useFolderContext } from "@/context/folderContext";
 
 export default function FolderInfo({ info }: { info: Info[] | null }) {
   const { infoPosition } = useFolderContext();
- 
+
   return (
     <div
       className="bg-slate-200 w-[16rem] top-0 z-10 px-4  absolute  rounded-xl"

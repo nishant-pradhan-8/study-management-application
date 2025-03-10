@@ -1,14 +1,10 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -25,12 +21,7 @@ import { updateEvent } from "@/actions/events/eventAction";
 import { Event } from "@/types/types";
 import { useEventContext } from "@/context/eventsContext";
 export default function UpdateEventCard() {
-  /*   const [emptyField, setEmptyField] = useState<Record<string,boolean>>({ 
-        eventName: false,
-        startDate: false,
-        endDate: false,
-        description: false,
-      });*/
+ 
   const { eventValidation, emptyFields } = useEventValidation();
   const { setAlertDialogOpen } = useUserContext();
   const {
@@ -56,7 +47,7 @@ export default function UpdateEventCard() {
   const endDateRef = useRef<HTMLInputElement>(null);
 
   const handleEventUpdate = async (e: React.FormEvent) => {
-    console.log(e.target as HTMLFormElement);
+   
     e.preventDefault();
     const eventObj = eventValidation(e);
     if (!eventObj) {
@@ -82,23 +73,25 @@ export default function UpdateEventCard() {
     }
   };
   const handleEventUpdateAlertClose = () => {
-    setAlertDialogOpen(false), setEventAlertDialogOpen(null);
+    setAlertDialogOpen(false)
+    setEventAlertDialogOpen(null);
     if (editingEventId) {
       setEditingEventId(null);
     }
   };
 
   useEffect(() => {
-    if (!events) {
-      return;
-    }
-    const selectedEvent: Event[] = events.filter(
+   
+    const selectedEvent: Event[] = events?.filter(
       (event) => event.id === editingEventId
-    );
+    ) || [];
+    if(!selectedEvent){
+      return
+    }
     if (selectedEvent.length > 0) {
       setEventDetails(selectedEvent[0]);
     }
-  }, [editingEventId]);
+  }, [editingEventId, events]);
   return (
     <Card className=" bg-gray-900 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-50 text-white max-h-[80vh] overflow-y-auto">
       <CardHeader className="p-0 flex flex-row justify-between  w-[30rem] max-sm:!w-[18rem] max-md:w-[24rem] items-center">

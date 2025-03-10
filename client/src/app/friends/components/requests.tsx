@@ -1,4 +1,4 @@
-import Image from "next/image"
+
 import PendingRequests from "./pendingRequests"
 import SentRequests from "./sentRequests"
 export default function Requests(){

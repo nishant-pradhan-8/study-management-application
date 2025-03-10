@@ -23,7 +23,7 @@ export default function FriendsList() {
       };
       fetchFriends();
     }
-  }, []);
+  }, [friends, setFriends]);
   return (
     <div className="border-[1px] border-gray-300 p-4 rounded-xl mt-6 ">
       <h3 className="text-lg font-semibold">Study Buddies</h3>
@@ -38,7 +38,7 @@ export default function FriendsList() {
                   className="flex items-center justify-between py-4 border-b border-gray-300 last:border-none"
                 >
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={
                         friend?.profilePicture === "" || !friend
                           ? "/images/profile.svg"

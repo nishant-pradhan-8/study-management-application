@@ -21,9 +21,7 @@ export default function Notifications({
       ref={dialogRef}
       className="absolute w-[18rem] top-[3.5rem] z-[50] bg-white border-[1px] border-gray-400 right-[3rem] rounded-xl max-h-[10rem] overflow-y-scroll custom-scrollbar max-sm:fixed   max-sm:top-[4rem]  max-sm:left-[50%]  max-sm:-translate-x-1/2 "
     >
-          
       <ul>
-   
         {notifications ? (
           notifications.length > 0 ? (
             notifications.map((notification) => (

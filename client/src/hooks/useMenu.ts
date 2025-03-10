@@ -11,7 +11,6 @@ export default function useMenu() {
       ) {
         setSelectedMenuId(null);
        if (infoVisible) {
-        console.log('went')
         setInfoVisible(false);
         }
       }

@@ -3,14 +3,11 @@ import Image from "next/image";
 import { useNoteContext } from "@/context/notesContext";
 import apiCall from "@/utils/backEndApiHandler";
 import { useEffect } from "react";
-import { getLastViewedNotes } from "@/actions/notes/noteAction";
 import useViewFile from "@/hooks/notes/useViewFile";
 import FileMenu from "@/app/_components/notes/fileMenu";
 import useMenu from "@/hooks/useMenu";
 import useViewInfo from "@/hooks/useViewInfo";
-import { getNoteInfo } from "@/actions/notes/noteAction";
 import { useUserContext } from "@/context/userContext";
-import DeletingProcess from "@/app/_components/deletingProcess";
 import ShareFile from "@/app/_components/notes/shareFile";
 import useOverlayDialog from "@/hooks/useOverlayDialog";
 import TableLoadingSkeleton from "@/app/_components/skeletons/tableSkeleton";
@@ -22,7 +19,7 @@ import DeleteBarNote from "@/app/_components/notes/deleteBarNote";
 import useMultipleSelection from "@/hooks/useMultipleSelection";
 import useShareNote from "@/hooks/notes/useShareNote";
 export default function NoteList({ folderId }: { folderId: string }) {
-  const { recentNotes, fileIcons, setRecentNotes, setActiveFile } =
+  const {fileIcons, setActiveFile } =
     useNoteContext();
 
   const { isDeleting, setAlertDialogOpen, setPopUpMessage, user } =
@@ -38,9 +35,9 @@ export default function NoteList({ folderId }: { folderId: string }) {
     setInfoVisible,
   } = useMenu();
 
-  const { info } = useViewInfo(selectedMenuId, getNoteInfo, "note");
+  const { info } = useViewInfo(selectedMenuId,  "note");
 
-  const { handleDialogOpen, handleDialogclose, tempId, overlayDialogOpen } =
+  const { handleDialogOpen, handleDialogclose,  overlayDialogOpen } =
     useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
 
   const { folders, setActiveFolder } = useFolderContext();
@@ -76,7 +73,7 @@ export default function NoteList({ folderId }: { folderId: string }) {
         selectedFolder && selectedFolder._id;
       setSelectedFolderId(selectedFolderId);
     }
-  }, [folders]);
+  }, [folders,folderId]);
 
   useEffect(() => {
     if (selectedFolderId) {
@@ -90,7 +87,7 @@ export default function NoteList({ folderId }: { folderId: string }) {
       };
       fetchNotes();
     }
-  }, [selectedFolderId]);
+  }, [selectedFolderId, setActiveFolder, setNotes]);
 
   return (
     <div {...getRootProps()} className="flex flex-col">
@@ -160,7 +157,7 @@ export default function NoteList({ folderId }: { folderId: string }) {
                     <td className="max-md:hidden">{note.fileType}</td>
                     <td className="max-md:hidden">{note.fileSize}</td>
                     <td className="max-md:hidden">
-                      <p className="max-md:text-[0.9rem] w-[7rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
+                      <p className="max-md:text-[0.9rem] w-[8rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
                         {note.folderName}
                       </p>
                     </td>

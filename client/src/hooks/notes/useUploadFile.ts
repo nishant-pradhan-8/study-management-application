@@ -1,11 +1,12 @@
-import { useState, Dispatch, SetStateAction } from "react";
+import {  Dispatch, SetStateAction } from "react";
 import { Note, UploadList, User, NoteResponse, Folder } from "@/types/types";
 import useFileValidation from "./useFileValidation";
 import { manageUploadList } from "@/utils/utils";
 import nextBackEndApiCall from "@/utils/nextBackEndApi";
 import apiCall from "@/utils/backEndApiHandler";
-
-const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
+import { folderIdToFolderName } from "@/utils/utils";
+const useUploadFile = (setProgressOpen: Dispatch<SetStateAction<boolean>>) => {
+  const { fileValidation } = useFileValidation();
   const uploadNotes = async (
     files: File[] | null,
     repeatedFile: File[] | null,
@@ -18,9 +19,11 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
     setHoldingFiles: Dispatch<SetStateAction<File[] | null>>,
     setIsUploading: Dispatch<SetStateAction<boolean>>,
     setErrorDuringUpload: Dispatch<SetStateAction<boolean>>,
-    setPopUpMessage:Dispatch<SetStateAction<{success:boolean, message:string} | null>>,
+    setPopUpMessage: Dispatch<
+      SetStateAction<{ success: boolean; message: string } | null>
+    >,
     uploadList: UploadList[],
-   
+
     folders: Folder[] | null
   ) => {
     if (!files && !repeatedFile) {
@@ -42,26 +45,27 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
       "video/x-matroska", // MKV
     ];
 
-    const { fileValidation } = useFileValidation();
+   
 
     if (files || repeatedFile) {
       setProgressOpen(true);
 
       setErrorDuringUpload(false);
       setIsUploading(true);
-      
 
       /*Logic to check repeated File*/
       const uploadedFileName: string[] =
         (notes && notes.map((note) => note.noteName)) || [];
+        console.log(uploadedFileName)
+        console.log(files)
+
       const repeatedFileList: File[] =
-        (files &&
-          files.filter((file) => uploadedFileName.includes(file.name))) ||
+          files?.filter((file) => uploadedFileName.includes(file.name.replace(/\.[^/.]+$/, ""))) ||
         [];
-      let holdingFiles: File[] =
-        (files &&
-          files.filter((file) => !uploadedFileName.includes(file.name))) ||
+
+      const holdingFiles: File[] = files?.filter((file) => !uploadedFileName.includes(file.name.replace(/\.[^/.]+$/, ""))) ||
         [];
+
       if (repeatedFileList.length > 0) {
         setHoldingFiles(holdingFiles);
         setRepeatedFile(repeatedFileList);
@@ -74,7 +78,9 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
         uploadList
       );
 
-      uploadList && setUploadList(tempUploadList);
+      if(uploadList){
+        setUploadList(tempUploadList);
+      } 
 
       const formData: FormData = fileValidation(
         files || [],
@@ -94,30 +100,27 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
         formData.append("folderId", folderId);
         formData.append("userId", user._id);
       }
-      console.log(repeatedFilesFormData, "rffd");
       const repeatedUploadedFiles: FormDataEntryValue[] =
         repeatedFilesFormData?.getAll("file") || [];
 
       if (repeatedUploadedFiles.length !== 0) {
-        for (let file of repeatedUploadedFiles) {
+        for (const file of repeatedUploadedFiles) {
           formData.append("file", file);
         }
       }
       const uploadedFiles: FormDataEntryValue[] = formData.getAll("file");
-      console.log(uploadedFiles, "uf");
       if (uploadedFiles.length !== 0) {
         const response = await nextBackEndApiCall(
           "/api/notes",
           "POST",
           formData
         );
-        console.log(response, "response");
         if (!response.error) {
           const responseNotes = response.data.data;
-          console.log(response.data.data, "responseNotes");
-          let repeatedFileNames = repeatedUploadedFiles
+        
+          const repeatedFileNames = repeatedUploadedFiles
             .filter((file) => file instanceof File)
-            .map((file) => file.name);
+            .map((file) => file.name.replace(/\.[^/.]+$/, ""));
 
           const newNotes = responseNotes.filter(
             (note: NoteResponse) => !repeatedFileNames.includes(note.noteName)
@@ -127,9 +130,9 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
           );
 
           try {
+            console.log(replacingNotes)
             let finalNoteList;
             if (replacingNotes.length !== 0) {
-              console.log(folderId, "fd");
               const response = await Promise.all([
                 await apiCall("/api/note/uploadNotes", "POST", {
                   newNotes,
@@ -139,45 +142,45 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
                   replacingNotes,
                 }),
               ]);
-              let uploadedNewNotesData = response[0];
-              let uploadedNewNotes = uploadedNewNotesData.data.data;
-              let replacedNotesData = response[1];
-              let replacedNotes = replacedNotesData.data.data;
+              const uploadedNewNotesData = response[0];
+              const uploadedNewNotes = uploadedNewNotesData.data.data;
+              const replacedNotesData = response[1];
+              const replacedNotes = replacedNotesData.data.data;
 
               const modifiedNewNotes: Note[] = uploadedNewNotes.map(
-                (note: any) => {
+                (note:Partial<Note>) => {
                   return {
                     noteName: note.noteName,
                     _id: note._id,
                     contentType: note.contentType,
                     fileSize: note.fileSize,
                     fileType: note.fileType,
-                    folderName: note.folderName,
+                    folderName: folderIdToFolderName(folders,note.folderId || ""),
                     downloadUrl: note.downloadUrl,
                   };
                 }
               );
+              console.log('replacedNotes',replacedNotes)
               const modifiedReplacedNotes: Note[] = replacedNotes.map(
-                (note: any) => {
+                (note:Partial<Note>) => {
                   return {
                     noteName: note.noteName,
                     _id: note._id,
                     contentType: note.contentType,
                     fileSize: note.fileSize,
                     fileType: note.fileType,
-                    folderName: note.folderName,
+                    folderName: folderIdToFolderName(folders,note.folderId || ""),
                     downloadUrl: note.downloadUrl,
                   };
                 }
               );
-              let replacedNoteList =
-                notes &&
-                notes.map((note: Note) => {
-                  let replacement = modifiedReplacedNotes.find(
+              const replacedNoteList = notes?.map((note: Note) => {
+                  const replacement = modifiedReplacedNotes.find(
                     (updatedNote) => updatedNote._id === note._id
                   );
                   return replacement || note;
                 });
+
               finalNoteList = [
                 ...(replacedNoteList || []),
                 ...modifiedNewNotes,
@@ -190,16 +193,15 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
 
               const data = response.data;
 
-              let updatedNoteList = data.data.map((note: any) => {
+              console.log('data',data)
+              const updatedNoteList = data.data.map((note:Partial<Note>) => {
                 return {
                   noteName: note.noteName,
                   _id: note._id,
                   contentType: note.contentType,
                   fileSize: note.fileSize,
                   fileType: note.fileType,
-                  folderName:
-                    folders?.find((folder) => folder._id === note.folderId)
-                      ?.folderName || "",
+                  folderName: folderIdToFolderName(folders,note.folderId || ""),
                   downloadUrl: note.downloadUrl,
                 };
               });
@@ -207,9 +209,9 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
             }
 
             setNotes(finalNoteList);
-          } catch (error: any) {
+          } catch (error) {
             setErrorDuringUpload(true);
-            console.log(error.message);
+            console.log(error instanceof Error && error.message);
           }
         }
       } else {
@@ -221,9 +223,8 @@ const useUploadFile = (setProgressOpen:Dispatch<SetStateAction<boolean>>) => {
     setRepeatedFile(null);
     setTimeout(() => {
       setUploadList([]);
-      
     }, 5000);
   };
-  return { uploadNotes};
+  return { uploadNotes };
 };
 export default useUploadFile;

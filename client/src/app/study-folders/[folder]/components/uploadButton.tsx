@@ -1,22 +1,21 @@
 "use client";
 import Image from "next/image";
-import { useUserContext } from "@/context/userContext";
 import React from "react";
 import { useNoteContext } from "@/context/notesContext";
 import UploadProgress from "./uploadProgress";
-import useUploadFile from "@/hooks/notes/useUploadFile";
 import UploadAimation from "./animation";
-export default function UploadButton({ folderId }: { folderId: string }) {
-  const { getInputProps, open, uploadList, progressOpen, setProgressOpen } = useNoteContext();
+export default function UploadButton() {
+  const { getInputProps, open, uploadList, progressOpen, setProgressOpen } =
+    useNoteContext();
   const { isUploading } = useNoteContext();
 
   return (
     <div className="relative flex flex-row gap-2 items-center">
-       { isUploading &&
- <a onClick={()=>setProgressOpen(true)} className="cursor-pointer">
- <UploadAimation />
- </a>
-       }
+      {isUploading && (
+        <a onClick={() => setProgressOpen(true)} className="cursor-pointer">
+          <UploadAimation />
+        </a>
+      )}
 
       <label
         htmlFor="upload"
@@ -39,4 +38,4 @@ export default function UploadButton({ folderId }: { folderId: string }) {
       {uploadList.length > 0 && progressOpen && <UploadProgress />}
     </div>
   );
-} /*(e)=>UploadNotes(e,folderId,setFileRejected,setNotes, setFileSizeExceeded,user)*/
+} 

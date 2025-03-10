@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 
 
 const useEventValidation = (
@@ -7,12 +7,11 @@ const useEventValidation = (
   const [emptyFields, setEmptyFields] = useState<Record<string, boolean>>({})
   const eventValidation = ( e: React.FormEvent) => {
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    let eventName: string | null = formData.get("eventName")?.toString() || "";
-    let startDate: string | null = formData.get("startDate")?.toString() || "";
-    let endDate: string | null = formData.get("endDate")?.toString() || "";
-    let description: string | null =
+    const eventName: string | null = formData.get("eventName")?.toString() || "";
+    const startDate: string | null = formData.get("startDate")?.toString() || "";
+    const endDate: string | null = formData.get("endDate")?.toString() || "";
+    const description: string | null =
       formData.get("description")?.toString() || "";
-    console.log(eventName, startDate, endDate, description);
     if (!eventName || !startDate || !endDate || !description) {
       const newEmptyFields = {
         // Create a new errors object

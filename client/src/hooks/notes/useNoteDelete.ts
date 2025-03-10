@@ -12,22 +12,21 @@ export default function useNoteDelete(
   setNotes: Dispatch<SetStateAction<Note[] | null>>,
   setRecentNotes: Dispatch<SetStateAction<Note[] | null>>
 ) {
-  const handleDeleteFile = async (notesToDelete:FileSelection[] | null) => {
-    if (!user || !folders || !notesToDelete || notesToDelete.length===0) {
+  const handleDeleteFile = async (notesToDelete: FileSelection[] | null) => {
+    if (!user || !folders || !notesToDelete || notesToDelete.length === 0) {
       return;
     }
 
     setIsDeleting(true);
 
-
-    const res = await deleteNotes(notesToDelete, user._id)
+    const res = await deleteNotes(notesToDelete, user._id);
     if (res.data.status === "error") {
       setIsDeleting(false);
       return;
     }
 
-    const notesIds = notesToDelete.map(note=>note.fileId)
-    
+    const notesIds = notesToDelete.map((note) => note.fileId);
+
     const newRecentNotes: Note[] =
       recentNotes?.filter((note) => !notesIds.includes(note._id)) || [];
     const newNotes: Note[] | null =
@@ -37,5 +36,5 @@ export default function useNoteDelete(
     setNotes(newNotes);
     setIsDeleting(false);
   };
-  return {handleDeleteFile}
+  return { handleDeleteFile };
 }

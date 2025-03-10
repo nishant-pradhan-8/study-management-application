@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { sendFriendRequest } from "@/actions/users/usersAction";
 import { useUserContext } from "@/context/userContext";
 export default function FriendsHeading() {
@@ -35,7 +35,6 @@ export default function FriendsHeading() {
     setInterval(() => {
       setPopUpMessage(null);
     }, 5000);
-    console.log(sentData.data);
     setSentRequests((prev) => [...(prev || []), sentData.data]);
   };
 

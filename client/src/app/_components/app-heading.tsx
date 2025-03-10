@@ -28,7 +28,7 @@ export default function AppHeading() {
         setUnreadNotification(unreadNotification);
       }
     }
-  }, [notifications]);
+  }, [notifications, user]);
 
   const handleNotificatonDialogOpen = async () => {
     if (notifications) {
@@ -65,7 +65,7 @@ export default function AppHeading() {
           ></div>
         </a>
         <Link className="cursor-pointer" href="/profile">
-          <img
+          <Image
             src={
               user?.profilePicture === "" || !user
                 ? "/images/profile.svg"

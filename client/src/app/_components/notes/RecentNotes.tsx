@@ -7,20 +7,18 @@ import useViewFile from "@/hooks/notes/useViewFile";
 import FileMenu from "./fileMenu";
 import useMenu from "@/hooks/useMenu";
 import useViewInfo from "@/hooks/useViewInfo";
-import { getNoteInfo } from "@/actions/notes/noteAction";
 import { useUserContext } from "@/context/userContext";
 import DeletingProcess from "../deletingProcess";
 import ShareFile from "./shareFile";
 import useOverlayDialog from "@/hooks/useOverlayDialog";
 import TableLoadingSkeleton from "../skeletons/tableSkeleton";
 import useMultipleSelection from "@/hooks/useMultipleSelection";
-import { useFolderContext } from "@/context/folderContext";
 import DeleteBarNote from "./deleteBarNote";
 import useShareNote from "@/hooks/notes/useShareNote";
 import apiCall from "@/utils/backEndApiHandler";
 
 export default function RecentNotes() {
-  const { recentNotes, fileIcons, setRecentNotes, setActiveFile, notes } =
+  const { recentNotes, fileIcons, setRecentNotes, setActiveFile} =
     useNoteContext();
 
   const { isDeleting, setAlertDialogOpen, setPopUpMessage, user } =
@@ -36,9 +34,9 @@ export default function RecentNotes() {
     setInfoVisible,
   } = useMenu();
 
-  const { info } = useViewInfo(selectedMenuId, getNoteInfo, "note");
+  const { info } = useViewInfo(selectedMenuId,  "note");
 
-  const { handleDialogOpen, handleDialogclose, tempId, overlayDialogOpen } =
+  const { handleDialogOpen, handleDialogclose, overlayDialogOpen } =
     useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
 
   const {
@@ -69,7 +67,7 @@ export default function RecentNotes() {
       };
       fetchNotes();
     }
-  }, [recentNotes, user]);
+  }, [recentNotes, user, setRecentNotes]);
 
   return (
     <div className="py-10 w-full">
@@ -144,7 +142,7 @@ export default function RecentNotes() {
                     <td className="max-md:hidden">{note.fileType}</td>
                     <td className="max-md:hidden">{note.fileSize}</td>
                     <td className="max-md:hidden">
-                      <p className="max-md:text-[0.9rem] w-[7rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
+                      <p className="max-md:text-[0.9rem] w-[8rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
                         {note.folderName}
                       </p>
                     </td>

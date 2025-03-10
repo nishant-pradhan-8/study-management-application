@@ -3,7 +3,9 @@ import { SetStateAction, Dispatch } from "react";
 import { useState } from "react";
 import { Note, User } from "@/types/types";
 export default function useShareNote(
-  setPopUpMessage: Dispatch<SetStateAction<{success:boolean, message:string} | null>>,
+  setPopUpMessage: Dispatch<
+    SetStateAction<{ success: boolean; message: string } | null>
+  >,
   user: User | null
 ) {
   const [isSharing, setIsSharing] = useState<boolean>(false);
@@ -19,7 +21,7 @@ export default function useShareNote(
     }
     setShareList([]);
     setIsSharing(false);
-    setPopUpMessage({success:true,message:`Note shared Successfully!`});
+    setPopUpMessage({ success: true, message: `Note shared Successfully!` });
     setFileSharingError(false);
     setInterval(() => {
       setPopUpMessage(null);

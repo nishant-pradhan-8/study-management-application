@@ -1,11 +1,9 @@
 import Image from "next/image";
-import { useUserContext } from "@/context/userContext";
 import { useEffect } from "react";
 import { useNoteContext } from "@/context/notesContext";
 
 export default function UploadProgress() {
   const {
-    notes,
     uploadList,
     fileIcons,
     isUploading,
@@ -26,14 +24,13 @@ export default function UploadProgress() {
     }
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [progressOpen]);
+  }, [progressOpen, progressDivRef, setProgressOpen]);
 
   return (
     <div
       ref={progressDivRef}
       className={` bg-slate-200 absolute p-4 custom-scrollbar overflow-y-scroll max-h-[15rem] right-0 max-sm:w-[16rem] w-[20rem] top-[3.5rem] rounded-xl flex flex-col gap-2 z-50`}
     >
-    
       {uploadList &&
         uploadList?.map((uploads) => (
           <div
@@ -54,9 +51,9 @@ export default function UploadProgress() {
                 <p className="font-semibold">{uploads.fileName}</p>
               </div>
             </div>
-            {/* Use isUploading directly */}
+           
             {isUploading ? (
-              <div className="loader"></div> // Show loader while uploading
+              <div className="loader"></div> 
             ) : fileIcons[uploads.contentType] && !errorDuringUpload ? (
               <Image alt="ok" src="/images/ok.svg" width={20} height={20} />
             ) : (

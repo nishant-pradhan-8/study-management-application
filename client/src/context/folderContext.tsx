@@ -16,9 +16,10 @@ interface FolderContext {
   setFaf: Dispatch<SetStateAction<Folder[] | null>>;
   newFolderName: string;
   setNewFolderName: Dispatch<SetStateAction<string>>;
-  menuPosition:Partial<FolderMenuPosition>, 
-  setMenuPosition:Dispatch<SetStateAction<Partial<FolderMenuPosition>>>;
-  infoPosition:Partial<FolderMenuPosition>, setInfoPosition:Dispatch<SetStateAction<Partial<FolderMenuPosition>>>;
+  menuPosition: Partial<FolderMenuPosition>;
+  setMenuPosition: Dispatch<SetStateAction<Partial<FolderMenuPosition>>>;
+  infoPosition: Partial<FolderMenuPosition>;
+  setInfoPosition: Dispatch<SetStateAction<Partial<FolderMenuPosition>>>;
 }
 const FolderContext = createContext<FolderContext | undefined>(undefined);
 
@@ -27,8 +28,12 @@ export default function FolderProvider({ children }: { children: ReactNode }) {
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [recentFolders, setRecentFolders] = useState<Folder[] | null>(null);
   const [faf, setFaf] = useState<Folder[] | null>(null);
-  const [menuPosition, setMenuPosition] = useState<Partial<FolderMenuPosition>>({})
-  const [infoPosition, setInfoPosition] = useState<Partial<FolderMenuPosition>>({})
+  const [menuPosition, setMenuPosition] = useState<Partial<FolderMenuPosition>>(
+    {}
+  );
+  const [infoPosition, setInfoPosition] = useState<Partial<FolderMenuPosition>>(
+    {}
+  );
   const [newFolderName, setNewFolderName] =
     useState<string>("Untitled Document");
 
@@ -37,7 +42,6 @@ export default function FolderProvider({ children }: { children: ReactNode }) {
       value={{
         activeFolder,
         setActiveFolder,
-
         folders,
         setFolders,
         recentFolders,
@@ -46,8 +50,10 @@ export default function FolderProvider({ children }: { children: ReactNode }) {
         setFaf,
         newFolderName,
         setNewFolderName,
-        menuPosition, setMenuPosition,
-        infoPosition, setInfoPosition
+        menuPosition,
+        setMenuPosition,
+        infoPosition,
+        setInfoPosition,
       }}
     >
       {children}

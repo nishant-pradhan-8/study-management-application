@@ -24,8 +24,8 @@ function ShareFile({
   isSharing: boolean;
   handleShareNote: (noteList: Note[] | null) => void;
 }) {
-  const { friends, setFriends} =
-    useUserContext();
+  const { friends, setFriends }=
+  useUserContext();
 
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -52,8 +52,8 @@ function ShareFile({
 
       fetchFriends();
     }
-  }, [friends]);
- 
+  }, [friends, setFriends]);
+
   const handleAlertDialogClose = () => {
     handleDialogclose();
     setShareList([]);
@@ -119,7 +119,7 @@ function ShareFile({
                     className="w-full friends-share-checkbox p-2 rounded-xl peer-checked:border-2 flex flex-row justify-between items-center cursor-pointer"
                   >
                     <div className="mt-4 flex flex-row items-center gap-2">
-                      <img
+                      <Image
                         src={
                           friend?.profilePicture === "" || !friend
                             ? "/images/profile.svg"
@@ -158,7 +158,7 @@ function ShareFile({
                     className="w-full friends-share-checkbox p-2 rounded-xl peer-checked:border-2 flex flex-row justify-between items-center cursor-pointer"
                   >
                     <div className="mt-4 flex flex-row items-center gap-2">
-                      <img
+                      <Image
                         src={
                           friend?.profilePicture === "" || !friend
                             ? "/images/profile.svg"

@@ -1,5 +1,4 @@
 import {
-  getStorage,
   ref,
   uploadBytes,
   getDownloadURL,
@@ -11,53 +10,7 @@ import { NextResponse } from "next/server";
 import { NoteSharing, SharedNotes } from "@/types/types";
 import { storage } from "@/lib/firebase";
 import { sharedNotesToDelete } from "@/types/types";
-/*
-export async function POST(req:Request) {
-    try {
-        const {notes} = await req.json();
-     
-         if (!notes) {
-            return NextResponse.json({status:"success", message: "Missing required fields" , data:null}, { status: 400 });
-        }
-       
-        const shareList = notes.shareList
-        const sourceUserId = notes.sourceUserId
-        const note = notes.note
-    
-        const response = await fetch(note.downloadUrl);
-        if (!response.ok) {
-            throw new Error("Failed to fetch file from URL");
-        }
-        const blob = await response.blob();
 
-       let notesToShare:NoteSharing[] = []
-        const uploadPromises = shareList.map(async (receiver:string) => {
-            const newRef = ref(storage, `Students/${receiver}/sharedFiles/${note.noteName}`);
-            const metadata = {
-                customMetadata: { sourceUserId },
-            };
-            await uploadBytes(newRef, blob, metadata);
-             const downloadUrl = await getDownloadURL(newRef);
-             const noteObject = {
-                noteName: note.noteName,
-                fileSize: note.fileSize,
-                fileType: note.fileType,
-                contentType: note.contentType,
-                downloadUrl:downloadUrl,
-                sharedBy: sourceUserId,
-                receivedBy: receiver
-              }; 
-            notesToShare.push(noteObject);
-        });
-
-        await Promise.all(uploadPromises);  
-        return NextResponse.json({status:'success', message: "File shared successfully", data:notesToShare }, { status: 201 });
-
-    } catch (e) {
-        if (e instanceof Error) return NextResponse.json({status:"error", message: `Failed to share file: ${e.message}`, data:null }, { status: 500 });
-    }
-}
-*/
 export async function POST(req: Request) {
   try {
     const { sharingInfo } = await req.json();
@@ -75,9 +28,9 @@ export async function POST(req: Request) {
 
     const { shareList, sourceUserId, notes } = sharingInfo;
 
-    let notesToShare: NoteSharing[] = [];
+    const notesToShare: NoteSharing[] = [];
 
-    for (let note of notes) {
+    for (const note of notes) {
       const response = await fetch(note.downloadUrl);
       const blob = await response.blob();
 
@@ -150,28 +103,6 @@ export async function POST(req: Request) {
   }
 }
 
-/*
-export async function PATCH(req:Request){
-    try{
-        const {fileName,folderId, userId, downloadUrl, fileType} = await req.json()
-        const metaData = {
-            contentType: fileType,
-          };
-        const sharedNoteRef = ref(storage, `Students/${userId}/sharedFiles/${fileName}`)
-        const response = await fetch(downloadUrl);
-        const blob = await response.blob();
-     
-        const noteRef = ref(storage, `Students/${userId}/${folderId}/${fileName}`)
-        await uploadBytes(noteRef, blob, metaData);
-        const newDownloadUrl = await getDownloadURL(noteRef);
-        await deleteObject(sharedNoteRef)
-        return NextResponse.json({status:"success", message: `File Transferred to the folder successfully`, data:newDownloadUrl }, { status: 201 })
-    }catch(e:any){
-        return NextResponse.json({status:"error", message: `Failed to transfer file :${e.message}`, data:null }, { status: 500 })
-    }
-    
-    
-}*/
 
 export async function PATCH(req: Request) {
   try {
@@ -187,48 +118,51 @@ export async function PATCH(req: Request) {
       downloadUrl: string;
     }[] = [];
 
-    const failedTransfers:string[] = []
+    const failedTransfers: string[] = [];
 
-    for (let note of notes) {
-        try{
-            const sharedNoteRef = ref(
-                storage,
-                `Students/${userId}/sharedFiles/${note.noteName}`
-              );
-        
-              const metaData = {
-                contentType: note.contentType,
-              };
+    for (const note of notes) {
+      try {
+        const sharedNoteRef = ref(
+          storage,
+          `Students/${userId}/sharedFiles/${note.noteName}`
+        );
 
-              const response = await fetch(note.downloadUrl);
-        
-              const blob = await response.blob();
-        
-              const noteRef = ref(
-                storage,
-                `Students/${userId}/${folderId}/${note.noteName}`
-              );
-        
-              await uploadBytes(noteRef, blob, metaData);
-              
-              const newDownloadUrl = await getDownloadURL(noteRef);
-        
-              await deleteObject(sharedNoteRef);
-        
-              resObj.push({ _id: note._id, downloadUrl: newDownloadUrl });
-        }catch(e){
-            failedTransfers.push(note._id)
-        }
+        const metaData = {
+          contentType: note.contentType,
+        };
+
+        const response = await fetch(note.downloadUrl);
+
+        const blob = await response.blob();
+
+        const noteRef = ref(
+          storage,
+          `Students/${userId}/${folderId}/${note.noteName}`
+        );
+
+        await uploadBytes(noteRef, blob, metaData);
+
+        const newDownloadUrl = await getDownloadURL(noteRef);
+
+        await deleteObject(sharedNoteRef);
+
+        resObj.push({ _id: note._id, downloadUrl: newDownloadUrl });
+      } catch (e) {
+        console.log(e)
+        failedTransfers.push(note._id);
+      }
     }
-    if(failedTransfers.length>0){
-        return NextResponse.json(
+    if (failedTransfers.length > 0) {
+      return NextResponse.json(
         {
           status: "success",
-          message: `Some Notes Failed to transfer: ${failedTransfers.join(",")}`,
+          message: `Some Notes Failed to transfer: ${failedTransfers.join(
+            ","
+          )}`,
           data: resObj,
         },
-        { status: 200
-        })
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(
@@ -239,11 +173,11 @@ export async function PATCH(req: Request) {
       },
       { status: 201 }
     );
-  } catch (e: any) {
+  } catch (e) {
     return NextResponse.json(
       {
         status: "error",
-        message: `Failed to transfer file :${e.message}`,
+        message: `Failed to transfer file :${e instanceof Error && e.message}`,
         data: null,
       },
       { status: 500 }
@@ -269,9 +203,9 @@ export async function DELETE(req: Request) {
     const noteNames: string[] = sharedNotesToDelete.map(
       (note: sharedNotesToDelete) => note.name
     );
-    console.log(noteNames);
+ 
     const failedOperations: string[] = [];
-    for (let note of noteNames) {
+    for (const note of noteNames) {
       try {
         const storageRef: StorageReference = ref(
           storage,
@@ -279,6 +213,7 @@ export async function DELETE(req: Request) {
         );
         await deleteObject(storageRef);
       } catch (e) {
+        console.log(e instanceof Error && e.message)
         failedOperations.push(note);
       }
     }

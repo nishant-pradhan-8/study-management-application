@@ -7,7 +7,7 @@ import nextBackEndApiCall from "@/utils/nextBackEndApi"
 
 
 export const createFolder = async(folderName:string)=>{
-  console.log(folderName, 'as')
+
   const { data } = await apiCall(`/api/folder/createFolder`, "POST", {
     folderName
   });

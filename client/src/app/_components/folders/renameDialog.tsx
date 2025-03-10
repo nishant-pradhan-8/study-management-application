@@ -12,7 +12,6 @@ export default function RenameDialog({
   tempId: string | null;
   handleDialogclose: () => void;
 }) {
-
   const { newFolderName, setNewFolderName, faf, setFolders, setFaf, folders } =
     useFolderContext();
 

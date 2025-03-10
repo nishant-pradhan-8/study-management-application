@@ -1,9 +1,7 @@
 const Folder = require("../models/folderModel");
 const Note = require("../models/noteModel");
 const jwt = require("jsonwebtoken");
-const { GridFSBucket } = require("mongodb");
-const { format, parseISO } = require("date-fns");
-const mongoose = require("mongoose");
+const { format } = require("date-fns");
 
 const showFolders = async (req, res) => {
   try {
@@ -28,13 +26,11 @@ const createFolder = async (req, res) => {
     const { folderName } = req.body;
     const userId = req.userId;
     const newFolder = await Folder.create({ folderName, userId });
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Folder Created Sucessfully",
-        data: newFolder,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Folder Created Sucessfully",
+      data: newFolder,
+    });
   } catch (e) {
     return res
       .status(500)
@@ -50,13 +46,11 @@ const showFolderData = async (req, res) => {
       .select("folderName");
 
     if (files.length === 0) {
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          message: "No notes found for this folder.",
-          data: files,
-        });
+      return res.status(200).json({
+        status: "success",
+        message: "No notes found for this folder.",
+        data: files,
+      });
     }
 
     const fileData = files.notes.map((file) => ({
@@ -69,22 +63,18 @@ const showFolderData = async (req, res) => {
       downloadUrl: file.downloadUrl,
     }));
 
-    res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Files Fetched Sucessfully",
-        data: fileData,
-      });
+    res.status(200).json({
+      status: "success",
+      message: "Files Fetched Sucessfully",
+      data: fileData,
+    });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        status: "success",
-        message: "Internal Server Error",
-        data: null,
-      });
+    res.status(500).json({
+      status: "success",
+      message: "Internal Server Error",
+      data: null,
+    });
   }
 };
 const deleteFolders = async (req, res) => {
@@ -109,13 +99,11 @@ const deleteFolders = async (req, res) => {
       await Note.deleteMany({ _id: { $in: noteIds } });
     }
 
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Folder Deleted Successfully",
-        data: null,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Folder Deleted Successfully",
+      data: null,
+    });
   } catch (e) {
     console.error("Error deleting folder:", e);
     return res
@@ -138,13 +126,11 @@ const countFolderAccess = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "Folder Not Found", data: null });
     }
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Accessed Count Updated Successfully",
-        data: null,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Accessed Count Updated Successfully",
+      data: null,
+    });
   } catch (e) {
     return res
       .status(500)
@@ -163,13 +149,11 @@ const getQuickAccessFolders = async (req, res) => {
       .limit(5)
       .select("folderName createdAt");
 
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Quick Accessed Folders Fetched Sucessfully",
-        data: quickAccessFolders,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Quick Accessed Folders Fetched Sucessfully",
+      data: quickAccessFolders,
+    });
   } catch (e) {
     return res
       .status(500)
@@ -179,14 +163,13 @@ const getQuickAccessFolders = async (req, res) => {
 
 const folderInfo = async (req, res) => {
   try {
-
     const { folderId } = req.params;
     const userId = req.userId;
-    
+
     const folderInfo = await Folder.findOne({ _id: folderId, userId }).select(
       "folderName createdAt updatedAt notes"
     );
-   
+
     if (!folderInfo) {
       return res
         .status(404)
@@ -200,15 +183,12 @@ const folderInfo = async (req, res) => {
       totalNotes: folderInfo.notes.length,
     };
 
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Folder Info Fetched Successfully.",
-        data: resObj,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Folder Info Fetched Successfully.",
+      data: resObj,
+    });
   } catch (e) {
-
     return res
       .status(500)
       .json({ status: "error", message: "Internal Server Error.", data: null });
@@ -223,19 +203,17 @@ const renameFolder = async (req, res) => {
       { _id: folderId, userId },
       { folderName: newFolderName }
     );
-  
+
     if (folderUpdate.modifiedCount === 0) {
       return res
         .status(404)
         .json({ status: "error", message: "Folder not found.", data: null });
     }
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Folder Updated Sucessfully",
-        data: null,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Folder Updated Sucessfully",
+      data: null,
+    });
   } catch (e) {
     return res
       .status(500)

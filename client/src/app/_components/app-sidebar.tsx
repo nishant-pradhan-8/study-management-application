@@ -1,6 +1,5 @@
 "use client";
 import type { navOptions } from "@/types/types";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Sidebar,
@@ -14,7 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useUserContext } from "@/context/userContext";
 import { useEffect } from "react";
-import { getUserDetails } from "@/actions/users/usersAction";
 import Link from "next/link";
 import { getNotification } from "@/actions/notifications/notificationAction";
 import { useFolderContext } from "@/context/folderContext";
@@ -55,25 +53,9 @@ export function AppSidebar() {
       icon: "/images/calendar.svg",
     },
   ];
-  const { setUser, user, notifications, setNotifications} =
-    useUserContext();
+  const { user, notifications, setNotifications } = useUserContext();
   const { folders, setFolders } = useFolderContext();
-  const router = useRouter();
-
   useEffect(() => {
-    if (!user) {
-      const fetchUserDetails = async () => {
-        const res = await getUserDetails();
-
-        if (!res || res.status === "error" || !res.data) {
-          router.push("/login");
-          return;
-        }
-        setUser(res.data);
-      };
-      fetchUserDetails();
-    }
-
     if (user) {
       if (!notifications) {
         const fetchNotifications = async () => {
@@ -95,16 +77,16 @@ export function AppSidebar() {
               folderRoute: routeFormater(folder.folderName),
             }));
             setFolders(modifiedFolders);
-            return
+            return;
           } else {
             console.log("No folders to show");
-            return
+            return;
           }
         };
         fetchFolders();
       }
     }
-  }, [user, notifications, folders]);
+  }, [user, notifications, folders, setFolders, setNotifications]);
 
   return (
     <Sidebar>

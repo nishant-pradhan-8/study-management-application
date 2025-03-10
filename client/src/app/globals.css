@@ -23,40 +23,31 @@ body {
   overflow-y: scroll;
 }
 
-
-html{
+html {
   height: 100%;
 }
 
 /*Ant Library*/
-.ant-layout{
-  @apply h-full
-
-  
-}.custom-scrollbar {
-  overflow: auto; /* Enable both horizontal & vertical scrolling */
- /* Prevent content from wrapping */
+.ant-layout {
+  @apply h-full;
+}
+.custom-scrollbar {
+  overflow: auto; 
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #4b5563 #d1d5db; /* Thumb & Track */
 }
-
-/* WebKit (Chrome, Safari, Edge) */
 .custom-scrollbar::-webkit-scrollbar {
-  height: 8px; /* Set height for horizontal scrollbar */
-  width: 8px;  /* Set width for vertical scrollbar */
+  height: 8px; 
+  width: 8px;
 }
 
-/* Style scrollbar thumb (draggable part) */
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #4b5563; /* Dark gray */
+  background-color: #4b5563; 
   border-radius: 10px;
 }
-
-/* Style scrollbar track (background) */
 .custom-scrollbar::-webkit-scrollbar-track {
-  background-color: #d1d5db; /* Light gray */
+  background-color: #d1d5db;
 }
-
 
 @layer base {
   :root {
@@ -83,97 +74,102 @@ html{
 }
 
 @layer components {
-  .app{
-    @apply h-full 
+  .app {
+    @apply h-full;
   }
-  .title{
-    @apply text-[32px] 
+  .title {
+    @apply text-[32px];
   }
-  .heading-1{
-    @apply text-[24px]
+  .heading-1 {
+    @apply text-[24px];
   }
-  .folder-card{
-    @apply bg-gray-300 flex p-4 rounded-xl justify-between items-center  min-w-[14rem] max-sm:min-w-[12rem]
+  .folder-card {
+    @apply bg-gray-300 flex p-4 rounded-xl justify-between items-center  min-w-[14rem] max-sm:min-w-[12rem];
   }
-  .folder-icon-div{
-    @apply flex items-center gap-4 font-semibold
+  .folder-icon-div {
+    @apply flex items-center gap-4 font-semibold;
   }
-  .icon-white{
+  .icon-white {
     filter: brightness(0) invert(1);
   }
-  .icon-black{
-    filter: brightness(0) ;
+  .icon-black {
+    filter: brightness(0);
   }
-  .overlay{
-    @apply bg-[#1f1f1f] fixed w-full h-full top-0 left-0
+  .overlay {
+    @apply bg-[#1f1f1f] fixed w-full h-full top-0 left-0;
   }
-  
-  .friends-share-checkbox:checked{
-    @apply border-[1px] border-gray-200
+
+  .friends-share-checkbox:checked {
+    @apply border-[1px] border-gray-200;
   }
-  .primary-btn{
-    @apply bg-slate-200 flex flex-row gap-2 py-2 px-4 rounded-xl font-semibold items-center
+  .primary-btn {
+    @apply bg-slate-200 flex flex-row gap-2 py-2 px-4 rounded-xl font-semibold items-center;
   }
-  .alertDialogOverlay{
+  .alertDialogOverlay {
     background-color: rgb(31 31 31 / 88%);
-    @apply fixed w-full h-full top-0 left-0 z-40
+    @apply fixed w-full h-full top-0 left-0 z-40;
   }
-  .lucide-panel-left{
-    @apply 
+  .lucide-panel-left {
+    @apply;
   }
-  .text-sidebar-foreground{
+  .text-sidebar-foreground {
     background-color: #f8fafc !important;
     z-index: 0;
   }
-  .input-field{
-    @apply bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-400 appearance-none w-full 
+  .input-field {
+    @apply bg-transparent text-white px-3 py-[0.5rem] rounded-xl border-white border-[1px] placeholder:text-gray-400 appearance-none w-full;
   }
 
-  .dp-div{
+  .dp-div {
     transform: translateY();
   }
 
- tr th{
-  @apply p-2
- }
- tr td{
-  @apply p-2
- }
-
- 
+  tr th {
+    @apply p-2;
+  }
+  tr td {
+    @apply p-2;
+  }
 }
-/* HTML:  */
-/* HTML: */
 .loader {
   width: 18px;
   aspect-ratio: 1;
   border-radius: 50%;
   border: 3px solid lightblue;
-  border-right-color: #7695FF;
+  border-right-color: #7695ff;
   animation: l2 1s infinite linear;
 }
-@keyframes l2 {to{transform: rotate(1turn)}}
+@keyframes l2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   visibility: hidden;
   -webkit-appearance: none;
 }
-.event-update-accrodion{
-  -ms-overflow-style: none;  /* For Internet Explorer 10+ */
-  scrollbar-width: none; 
+.event-update-accrodion {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
 }
 
-/* HTML:  */
+
 .Delete-Loader {
   height: 4px;
   width: 130px;
-  --c:no-repeat linear-gradient(#6100ee 0 0);
-  background: var(--c),var(--c),#d7b8fc;
+  --c: no-repeat linear-gradient(#6100ee 0 0);
+  background: var(--c), var(--c), #d7b8fc;
   background-size: 60% 100%;
   animation: l16 3s infinite;
 }
 @keyframes l16 {
-  0%   {background-position:-150% 0,-150% 0}
-  66%  {background-position: 250% 0,-150% 0}
-  100% {background-position: 250% 0, 250% 0}
+  0% {
+    background-position: -150% 0, -150% 0;
+  }
+  66% {
+    background-position: 250% 0, -150% 0;
+  }
+  100% {
+    background-position: 250% 0, 250% 0;
+  }
 }
-

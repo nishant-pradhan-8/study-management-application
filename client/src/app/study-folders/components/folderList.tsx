@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useUserContext } from "@/context/userContext";
-import { useEffect} from "react";
+import { useEffect } from "react";
 import FolderMenu from "@/app/_components/folders/folderMenu";
 import { Folder } from "@/types/types";
 import { useFolderContext } from "@/context/folderContext";
@@ -12,7 +12,6 @@ import useMenu from "@/hooks/useMenu";
 import useOverlayDialog from "@/hooks/useOverlayDialog";
 import useViewInfo from "@/hooks/useViewInfo";
 import RenameDialog from "@/app/_components/folders/renameDialog";
-import { getFolderInfo } from "@/actions/folders/folderAction";
 import FolderSkeleton from "@/app/_components/skeletons/folderSkeleton";
 import useMultipleSelection from "@/hooks/useMultipleSelection";
 import DeleteBar from "@/app/_components/folders/deleteBarFolder";
@@ -44,13 +43,13 @@ export default function FolderList() {
   const { handleDialogOpen, handleDialogclose, tempId, overlayDialogOpen } =
     useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
 
-  const { info } = useViewInfo(selectedMenuId, getFolderInfo, "folder");
+  const { info } = useViewInfo(selectedMenuId,  "folder");
 
   useEffect(() => {
     if (inputRef && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [folders]);
+  }, [folders, inputRef]);
 
   const manageCreateFolder = async (
     e: React.KeyboardEvent<HTMLInputElement>
@@ -85,7 +84,7 @@ export default function FolderList() {
 
       {folders ? (
         folders.length > 0 ? (
-          folders.map((folder, i) =>
+          folders.map((folder) =>
             folder._id ? (
               <div
                 key={folder._id}

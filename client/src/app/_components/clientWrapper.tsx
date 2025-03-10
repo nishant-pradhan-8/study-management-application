@@ -1,19 +1,43 @@
-"use client"; // This makes it a Client Component
+"use client"; 
 
 import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./app-sidebar"
+import { AppSidebar } from "./app-sidebar";
 import AppHeading from "./app-heading";
 import Overlay from "./overlay";
 import AlertDialogOverlay from "./alertDialogOverlay";
 import { useNoteContext } from "@/context/notesContext";
 import { useUserContext } from "@/context/userContext";
 import DeletingProcess from "./deletingProcess";
-export default function ClientWrapper({ children }: { children: React.ReactNode }) {
+import { useEffect } from "react";
+import { getUserDetails } from "@/actions/users/usersAction";
+import { useRouter } from "next/navigation";
+export default function ClientWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const isAuthPage = pathname.includes("/login") || pathname.includes("/register") || pathname.includes("/reset-password")
-  const {activeFile} = useNoteContext()
-  const {alertDialogOpen, isDeleting} = useUserContext()
+  const isAuthPage =
+    pathname.includes("/login") ||
+    pathname.includes("/register") ||
+    pathname.includes("/reset-password");
+  const { activeFile } = useNoteContext();
+  const { alertDialogOpen, isDeleting, user, setUser } = useUserContext();
+  const router = useRouter();
+  useEffect(() => {
+    if (!user) {
+      const fetchUserDetails = async () => {
+        const res = await getUserDetails();
+        if (!res || res.status === "error" || !res.data) {
+          router.push("/login");
+          return;
+        }
+        setUser(res.data);
+      };
+      fetchUserDetails();
+    }
+  }, [user, router, setUser]);
   return (
     <SidebarProvider>
       {!isAuthPage && <AppSidebar />}
@@ -24,11 +48,17 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
             <AppHeading />
           </div>
         )}
-        <div className={`${!isAuthPage?"h-[calc(100%-7rem)] !overflow-x-hidden    custom-scrollbar mx-4 scrollbar-hide bg-slate-50 p-4 overflow-y-scroll rounded-xl":'bg-white'}`}>
+        <div
+          className={`${
+            !isAuthPage
+              ? "h-[calc(100%-7rem)] !overflow-x-hidden    custom-scrollbar mx-4 scrollbar-hide bg-slate-50 p-4 overflow-y-scroll rounded-xl"
+              : "bg-white"
+          }`}
+        >
           {children}
           {activeFile && <Overlay />}
           {alertDialogOpen && <AlertDialogOverlay />}
-            {isDeleting && <DeletingProcess />}
+          {isDeleting && <DeletingProcess />}
         </div>
       </main>
     </SidebarProvider>

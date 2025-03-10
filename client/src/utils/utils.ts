@@ -1,10 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { UploadList } from "@/types/types";
-import { Dispatch } from "react";
-import { SetStateAction } from "react";
 import { Folder } from "@/types/types";
-import { useState } from "react";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -93,4 +90,7 @@ export const folderNameToFolderId = (folders:Folder[] | null, folderName:string)
   return folderId
 }
 
-export  const accessToken:string = ""
+export const folderIdToFolderName = (folders:Folder[] | null, folderId:string)=>{
+  const folderName:string | null = folders?.find(folder=>folder._id === folderId)?._id || null
+  return folderName
+}

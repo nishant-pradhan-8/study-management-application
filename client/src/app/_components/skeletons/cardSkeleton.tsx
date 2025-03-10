@@ -1,7 +1,8 @@
 import React from 'react'
 import ContentLoader from 'react-content-loader'
 
-const CardSkeleton = props => (
+import  { IContentLoaderProps } from "react-content-loader";
+const CardSkeleton: React.FC<IContentLoaderProps>  = (props) => (
     <>
     <ContentLoader uniqueKey='my-unique-key' width={300} height={100} viewBox="0 0 355 90" {...props}>
     <rect x="4" y="8" rx="16" ry="16" width="7" height="86" />
@@ -51,10 +52,3 @@ const CardSkeleton = props => (
 )
 
 export default CardSkeleton
-
-CardSkeleton.metadata = {
-  name: 'Rivky Bleier',
-  github: 'RivkyB',
-  description: 'Simple Card List',
-  filename: 'CardList',
-}

@@ -6,6 +6,7 @@ import { useUserContext } from "@/context/userContext";
 import AvatarWithText from "@/app/_components/skeletons/avatarAndText";
 import apiCall from "@/utils/backEndApiHandler";
 import { User } from "@/types/types";
+import Image from "next/image";
 export default function SentRequests() {
   const { sentRequests, setSentRequests, setPopUpMessage } = useUserContext();
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function SentRequests() {
       };
       fetchSentRequests();
     }
-  }, []);
+  }, [sentRequests, setSentRequests]);
 
   const handleCancelRequest = async(receiverId:string)=>{
     const res = await apiCall('/api/users/cancelRequestSent','DELETE',{receiverId})
@@ -44,7 +45,7 @@ export default function SentRequests() {
             <div key={req._id} className="mt-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={
                       req?.profilePicture === "" || !req
                         ? "/images/profile.svg"

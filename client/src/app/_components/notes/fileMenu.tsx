@@ -5,14 +5,12 @@ import useNoteDelete from "@/hooks/notes/useNoteDelete";
 import { useUserContext } from "@/context/userContext";
 import { useNoteContext } from "@/context/notesContext";
 import { Dispatch, SetStateAction } from "react";
-import useMultipleSelection from "@/hooks/useMultipleSelection";
 import { useFolderContext } from "@/context/folderContext";
-import { Folder, Note } from "@/types/types";
+import { Note } from "@/types/types";
 import { Info } from "@/hooks/useViewInfo";
 import NoteInfo from "./noteInfo";
 import { folderNameToFolderId } from "@/utils/utils";
 import { FileSelection } from "@/hooks/useMultipleSelection";
-import apiCall from "@/utils/backEndApiHandler";
 export default function FileMenu({
   handleDialogOpen,
   menuRef,
@@ -24,9 +22,9 @@ export default function FileMenu({
   info,
   setSelected,
   setFileSelection,
-  notesArray
+  notesArray,
 }: {
-  handleDialogOpen:()=>void
+  handleDialogOpen: () => void;
   setSelectedMenuId: Dispatch<SetStateAction<string | null>>;
   note: Note;
   selectedMenuId: string | null;
@@ -34,49 +32,52 @@ export default function FileMenu({
   infoVisible: boolean;
   setInfoVisible: Dispatch<SetStateAction<boolean>>;
   info: Info[] | null;
-  setSelected:Dispatch<SetStateAction<string[] | null>>
-  setFileSelection:Dispatch<SetStateAction<Note[] | null>>;
- 
-  notesArray:Note[] | null
+  setSelected: Dispatch<SetStateAction<string[] | null>>;
+  setFileSelection: Dispatch<SetStateAction<Note[] | null>>;
+
+  notesArray: Note[] | null;
 }) {
-  const { user, setIsDeleting} = useUserContext();
+  const { user, setIsDeleting } = useUserContext();
   const { recentNotes, notes, setRecentNotes, setNotes } = useNoteContext();
   const { folders } = useFolderContext();
-  const {handleDeleteFile} = useNoteDelete(user, folders, setIsDeleting,recentNotes,notes,setNotes, setRecentNotes)
-
+  const { handleDeleteFile } = useNoteDelete(
+    user,
+    folders,
+    setIsDeleting,
+    recentNotes,
+    notes,
+    setNotes,
+    setRecentNotes
+  );
 
   const openNoteSharingDialog = () => {
-    const selectedNote = notesArray?.find(note=>note._id===selectedMenuId)
-    if(!selectedNote){
- 
-      return
+    const selectedNote = notesArray?.find(
+      (note) => note._id === selectedMenuId
+    );
+    if (!selectedNote) {
+      return;
     }
-    setFileSelection([selectedNote])
-    handleDialogOpen()
+    setFileSelection([selectedNote]);
+    handleDialogOpen();
   };
 
-  const handleSelection = ()=>{
-    setSelected([selectedMenuId!])
-    setFileSelection([note])
-    setSelectedMenuId(null)
+  const handleSelection = () => {
+    setSelected([selectedMenuId!]);
+    setFileSelection([note]);
+    setSelectedMenuId(null);
+  };
 
-  }
+  const prepareDelete = async () => {
+    setSelectedMenuId(null);
 
-  const prepareDelete = async()=>{
-    
-    setSelectedMenuId(null)
-
-    const noteToDelete:FileSelection = {
+    const noteToDelete: FileSelection = {
       fileId: note._id,
-      folderId: folderNameToFolderId(folders,note.folderName),
-      fileName: note.noteName
-    }
-    await handleDeleteFile([noteToDelete])
-    setSelectedMenuId(null)
-    
-  }
-
-
+      folderId: folderNameToFolderId(folders, note.folderName || ""),
+      fileName: note.noteName,
+    };
+    await handleDeleteFile([noteToDelete]);
+    setSelectedMenuId(null);
+  };
 
   const fileMenu = [
     {
@@ -113,7 +114,6 @@ export default function FileMenu({
     },
   ];
 
-
   return (
     <div
       tabIndex={0}
@@ -143,7 +143,6 @@ export default function FileMenu({
         ))}
       </ul>
       {infoVisible && <NoteInfo info={info} />}
-  
     </div>
   );
 }

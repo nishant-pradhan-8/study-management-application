@@ -5,26 +5,23 @@ const getNotifications = async (req, res) => {
     const userId = req.userId;
     const notifications = await Notification.find({
       receiverId: userId,
-    }).select("notification notificationType read createdAt").sort({createdAt:-1});
+    })
+      .select("notification notificationType read createdAt")
+      .sort({ createdAt: -1 });
 
-    if (notifications.length === 0){
-        return res
-        .status(204)
-        .json({
-          status: "success",
-          message: "No notifications found",
-          data: null,
-        });
-    }
-     
-    return res
-      .status(200)
-      .json({
+    if (notifications.length === 0) {
+      return res.status(204).json({
         status: "success",
-        message: "Notifications Fetched Successfully",
-        data: notifications,
+        message: "No notifications found",
+        data: null,
       });
-      
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Notifications Fetched Successfully",
+      data: notifications,
+    });
   } catch (e) {
     return res
       .status(500)
@@ -40,13 +37,11 @@ const markNotificationRead = async (req, res) => {
       { read }
     );
 
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "All Notification Marked as Read",
-        data: null,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "All Notification Marked as Read",
+      data: null,
+    });
   } catch (e) {
     return res
       .status(500)

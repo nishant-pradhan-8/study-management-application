@@ -5,9 +5,8 @@ import { useState } from "react";
 import Image from "next/image";
 
 const CreateFolderFaf = () => {
-
   const { setFolders, setFaf, folders } = useFolderContext();
-  
+
   const { newFolderName, setNewFolderName, inputRef, handleCreateFolder } =
     useCreateFolder(folders, setFolders);
 

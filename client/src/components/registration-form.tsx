@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { validatePassword } from "@/utils/utils";
 import { registerUser } from "@/actions/users/usersAction";
 import { useRouter } from "next/navigation";
-
+import { useUserContext } from "@/context/userContext";
 export interface RegistrationInfo {
   firstName: string | null;
   lastName: string | null;
@@ -20,7 +20,14 @@ export function RegistrationForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+
   const router = useRouter();
+    const {user, setUser} = useUserContext();
+    useEffect(()=>{
+      if(user){
+        router.push("/")
+      }
+    },[user, router])
   const [registrationInfo, setRegistrationInfo] = useState<RegistrationInfo>({
     firstName: null,
     lastName: null,
@@ -68,6 +75,7 @@ export function RegistrationForm({
       return;
     }
     setRegistering(false);
+    setUser(res.data)
     router.push("/");
   };
 

@@ -24,7 +24,7 @@ export default function PendingRequests() {
       };
       fetchPendingRequests();
     }
-  }, []);
+  }, [pendingRequests, setPendingRequests]);
 
   const handleFriendReqResponse = async (
     senderId: string,
@@ -67,7 +67,7 @@ export default function PendingRequests() {
             <div key={req._id} className="mt-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={
                       req?.profilePicture === "" || !req
                         ? "/images/profile.svg"

@@ -25,11 +25,15 @@ export default function ProfileDetails() {
   } = useProfileUpdate({ user, setUser });
 
   const handleSignOut = async () => {
-    const res = await apiCall("/api/auth/logout", "POST", {});
+    if (!user) {
+      return;
+    }
+    const res = await apiCall("/api/auth/logout", "POST", { userId: user._id });
     if (res.data.status === "error") {
       console.log("Signout Failed!");
       return;
     }
+    setUser(null);
     router.push("/login");
   };
 
@@ -38,10 +42,10 @@ export default function ProfileDetails() {
       <form onSubmit={handleUpdateProfileDetails}>
         <div className="flex justify-between items-center mb-4 max-md:!items-start ">
           <div className="flex flex-row items-center gap-4 max-880:flex-col max-880:items-start">
-            <img
+            <Image
               src={
                 profilePictureChanged && profilePictureChanged !== "Delete"
-                  ? tempUrl
+                  ? tempUrl || ""
                   : update.profilePicture === "" ||
                     profilePictureChanged === "Delete"
                   ? "/images/profile.svg"
@@ -71,7 +75,7 @@ export default function ProfileDetails() {
               </label>
               {update.profilePicture !== "" && (
                 <button
-                  onClick={(e) => handleProfilePictureDelete()}
+                  onClick={handleProfilePictureDelete}
                   type="button"
                   className="bg-red-500 ml-0 text-white px-4 py-2 rounded-xl"
                 >

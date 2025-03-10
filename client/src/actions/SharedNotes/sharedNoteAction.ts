@@ -1,4 +1,4 @@
-import { Note, User, NoteSharing, SharedNotes} from "@/types/types";
+import { Note, User, SharedNotes} from "@/types/types";
 import nextBackEndApiCall from "@/utils/nextBackEndApi";
 import apiCall from "@/utils/backEndApiHandler";
 import { sharedNotesToDelete } from "@/types/types";
@@ -8,7 +8,7 @@ export const shareNotes = async (
   user: User | null
 ) => {
   try {
-    let sharingInfo = {
+    const sharingInfo = {
       shareList,
       sourceUserId: user?._id,
       notes,
@@ -112,7 +112,7 @@ export const transferNote = async (
 
 export const deleteSharedNotes = async(sharedNotesToDelete:sharedNotesToDelete[],userId:string | null)=>{
   const res = await nextBackEndApiCall("/api/fileSharing", "DELETE", { sharedNotesToDelete, userId });
-  console.log(res)
+
   if(res.data.status==="error"){
     return
   }

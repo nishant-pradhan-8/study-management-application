@@ -1,6 +1,5 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const Notification = require("../models/notificationModel");
 

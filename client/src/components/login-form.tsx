@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
 import { loginUser } from "@/actions/users/usersAction";
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { useEffect } from "react";
+import { useUserContext } from "@/context/userContext";
 export interface LoginInfo {
   email: string | null;
   password: string | null;
@@ -17,15 +18,25 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+  const router = useRouter();
+  const {user, setUser} = useUserContext();
+
+  useEffect(()=>{
+    if(user){
+      console.log(user)
+      router.push("/")
+    }
+  },[user, router])
+
   const [loginInfo, setLoginInfo] = useState<LoginInfo>({
     email: null,
     password: null,
   });
-  const router = useRouter();
+  
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [logging, setLogging] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-
+  
   const handleLoginInfoInput = (field: keyof LoginInfo, value: string) => {
     setLoginInfo((prev) => ({ ...prev, [field]: value }));
   };
@@ -42,6 +53,8 @@ export function LoginForm({
       return;
     }
     setLogging(false);
+  
+    setUser(res.data)
     router.push("/");
   };
 

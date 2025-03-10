@@ -1,19 +1,10 @@
 import Image from "next/image";
-import LoadingSkeleton from "@/app/friends/components/loadingSkeleton";
-import { transferNote } from "@/actions/SharedNotes/sharedNoteAction";
 import { Note, SharedNotes } from "@/types/types";
-import { SetStateAction, useState, Dispatch } from "react";
+import { SetStateAction,Dispatch } from "react";
 import { useFolderContext } from "@/context/folderContext";
-import { useUserContext } from "@/context/userContext";
-import useTransferNote from "@/hooks/sharedNotes/useTransferNote";
 import { getNotes } from "@/actions/notes/noteAction";
-import SharedList from "./sharedList";
 export default function FolderSelection({
- selected,
-  userId,
   handleDialogclose,
-  sharedNotes,
-  setSharedNotes,
   sharedFileSelection,
   setSelectedFolder,
   transferError,
@@ -21,58 +12,59 @@ export default function FolderSelection({
   transfering,
   selectedFolder,
   setSelected,
-  setSharedFileSelection
-
+  setSharedFileSelection,
 }: {
   userId: string | null;
-selected:string[] | null
+  selected: string[] | null;
   handleDialogclose: () => void;
   sharedNotes: SharedNotes[] | null;
   setSharedNotes: Dispatch<SetStateAction<SharedNotes[] | null>>;
-  sharedFileSelection:SharedNotes[] | null;
-  setSelectedFolder:Dispatch<SetStateAction<string | null>>;
-  transferError: boolean,
-  handleNoteTransfer:(sharedFileSelection:SharedNotes[] | null)=>Promise<void>,
-  transfering:boolean
-  selectedFolder:string | null
+  sharedFileSelection: SharedNotes[] | null;
+  setSelectedFolder: Dispatch<SetStateAction<string | null>>;
+  transferError: boolean;
+  handleNoteTransfer: (
+    sharedFileSelection: SharedNotes[] | null
+  ) => Promise<void>;
+  transfering: boolean;
+  selectedFolder: string | null;
   setSelected: Dispatch<SetStateAction<string[] | null>>;
   setSharedFileSelection: Dispatch<SetStateAction<SharedNotes[] | null>>;
 }) {
   const { folders } = useFolderContext();
 
-  const handleTransferToFolder = async()=>{
-    if(!selectedFolder || !sharedFileSelection){
-      return
+  const handleTransferToFolder = async () => {
+    if (!selectedFolder || !sharedFileSelection) {
+      return;
     }
-    const res =  await getNotes(selectedFolder)
-    if(!res.data){
-      return
-    }
-    const noteNames:Set<string> = new Set( res.data.map((note:Note)=>note.noteName))
+    const res = await getNotes(selectedFolder);
 
-    let tempSharedFile:SharedNotes[] = sharedFileSelection.map((note)=>{
+    if (!res || !res.data) {
+      return;
+    }
+    const noteNames: Set<string> = new Set(
+      res.data.map((note: Note) => note.noteName)
+    );
+
+    const tempSharedFile: SharedNotes[] = sharedFileSelection.map((note) => {
       let counter = 0;
-      let uniqueName = note.noteName
-      while(noteNames.has(note.noteName)){
-        counter++
-        uniqueName = `${name}(${counter})`
+      let uniqueName = note.noteName;
+      while (noteNames.has(note.noteName)) {
+        counter++;
+        uniqueName = `${note.noteName}(${counter})`;
       }
-      noteNames.add(uniqueName)
-      return  counter !== 0 ? { ...note, noteName: uniqueName } : note;
-    })
+      noteNames.add(uniqueName);
+      return counter !== 0 ? { ...note, noteName: uniqueName } : note;
+    });
 
-    await handleNoteTransfer(tempSharedFile)
-    setSelected(null)
-    setSharedFileSelection(null)
-
-  }
+    await handleNoteTransfer(tempSharedFile);
+    setSelected(null);
+    setSharedFileSelection(null);
+  };
 
   return (
     <div
-      className={`bg-gray-800 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[30rem] z-50`}
+      className={`bg-gray-800 p-4 rounded-xl fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[30rem] max-sm:!w-[18rem] max-md:w-[24rem] z-50`}
     >
-     
-      
       <div className="flex flex-col gap-2 mb-4 pb-4 border-b-[1px] border-gray-300">
         <div className="flex flex-row justify-between">
           <h2 className="text-white text-[1.5rem] font-semibold mr-2">
@@ -136,7 +128,9 @@ selected:string[] | null
         </p>
         <button
           onClick={handleTransferToFolder}
-          className={`${!selectedFolder?'bg-gray-400 cursor-not-allowed':''} primary-btn w-full items-center justify-center h-10`}
+          className={`${
+            !selectedFolder ? "bg-gray-400 cursor-not-allowed" : ""
+          } primary-btn w-full items-center justify-center h-10`}
           disabled={transfering || !selectedFolder}
         >
           {transfering ? <div className="loader"></div> : "Transfer"}

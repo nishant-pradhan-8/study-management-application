@@ -27,9 +27,7 @@ export default function FolderMenu({
   info: Info[] | null;
   setSelected: Dispatch<SetStateAction<string[] | null>>;
 }) {
-  if (!selectedMenuId) {
-    return;
-  }
+ 
 
   const { faf, setFaf, setFolders, folders, menuPosition } = useFolderContext();
   const { setRecentNotes } = useNoteContext();
@@ -37,7 +35,7 @@ export default function FolderMenu({
 
   const { handleDeleteFolder } = useDeleteFolders(
     user,
-    [selectedMenuId],
+    [selectedMenuId!],
     setSelectedMenuId,
     setIsDeleting,
     faf,
@@ -48,7 +46,7 @@ export default function FolderMenu({
   );
 
   const handleSelection = () => {
-    setSelected([selectedMenuId]);
+    setSelected([selectedMenuId!]);
     setSelectedMenuId(null);
   };
 

@@ -13,29 +13,19 @@ import { useUserContext } from "@/context/userContext";
 import TableLoadingSkeleton from "@/app/_components/skeletons/tableSkeleton";
 import useMultipleSelection from "@/hooks/useMultipleSelection";
 import SelectBar from "./selectBar";
-import { useFolderContext } from "@/context/folderContext";
 import useTransferNote from "@/hooks/sharedNotes/useTransferNote";
 export default function SharedList() {
   const [sharedNotes, setSharedNotes] = useState<SharedNotes[] | null>(null);
- const {setActiveFile, fileIcons} = useNoteContext()
-  const { setFolders } = useFolderContext();
-  const { setAlertDialogOpen, user, setPopUpMessage } =
-    useUserContext();
+  const { setActiveFile, fileIcons } = useNoteContext();
+  const { setAlertDialogOpen, user, setPopUpMessage } = useUserContext();
   const { handleFileOpen } = useViewFile(setActiveFile, fileIcons);
   const {
     selectedMenuId,
     setSelectedMenuId,
-    menuRef,
-    infoVisible,
-    setInfoVisible,
+    menuRef
   } = useMenu();
-  const {
-    handleDialogOpen,
-    handleDialogclose,
-    tempId,
-    overlayDialogOpen,
-    setTempId,
-  } = useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
+  const { handleDialogOpen, handleDialogclose, overlayDialogOpen } =
+    useOverlayDialog(selectedMenuId, setAlertDialogOpen, setSelectedMenuId);
 
   const {
     selected,
@@ -55,7 +45,6 @@ export default function SharedList() {
     user?._id || null,
     sharedNotes,
     setSharedNotes,
-    setFolders,
     handleDialogclose,
     setPopUpMessage
   );
@@ -71,7 +60,7 @@ export default function SharedList() {
       };
       fetchSharedNotes();
     }
-  }, [sharedNotes]);
+  }, [sharedNotes, user]);
 
   return (
     <div className="container pb-10 h-full">
@@ -143,7 +132,7 @@ export default function SharedList() {
                       <td className="max-md:hidden">{note.fileType}</td>
                       <td className="max-md:hidden">{note.fileSize}</td>
                       <td className="max-md:hidden">
-                        <p className=" overflow-hidden text-ellipsis max-md:text-[0.9rem] w-[7rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
+                        <p className=" overflow-hidden text-ellipsis max-md:text-[0.9rem] w-[8rem] max-sm:text-ellipsis max-sm:overflow-hidden ">
                           {note.sharedBy}
                         </p>
                       </td>
@@ -161,8 +150,6 @@ export default function SharedList() {
                           {selectedMenuId === note._id && (
                             <SrMenu
                               handleDialogOpen={handleDialogOpen}
-                              infoVisible={infoVisible}
-                              setInfoVisible={setInfoVisible}
                               setSelectedMenuId={setSelectedMenuId}
                               selectedMenuId={selectedMenuId}
                               menuRef={menuRef}

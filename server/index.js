@@ -24,6 +24,7 @@ app.use(
       credentials: true,
     })
   );
+
 connectDB();
 
 
@@ -47,5 +48,5 @@ app.use("/api/notification", notificationRoute);
 
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server Running....`);
 });
