@@ -4,6 +4,13 @@ var GoogleStrategy = require("passport-google-oauth2").Strategy;
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+passport.serializeUser(function(user, done) {
+  done(null, user); 
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user); 
+});
 passport.use(
   new GoogleStrategy(
     {
