@@ -91,6 +91,6 @@ export const folderNameToFolderId = (folders:Folder[] | null, folderName:string)
 }
 
 export const folderIdToFolderName = (folders:Folder[] | null, folderId:string)=>{
-  const folderName:string | null = folders?.find(folder=>folder._id === folderId)?._id || null
+  const folderName:string | null = folders?.find(folder=>folder._id === folderId)?.folderName || null
   return folderName
 }
