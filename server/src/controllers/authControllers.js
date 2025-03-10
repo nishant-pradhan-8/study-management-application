@@ -343,7 +343,7 @@ const googleAuth = async (req, res) => {
   });
 
 
-  res.redirect("http://localhost:3000/");
+  res.redirect("https://study-management-web-app.onrender.com/");
 };
 
 module.exports = { registerUser, loginUser, refresh, logoutUser, googleAuth };

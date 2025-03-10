@@ -15,7 +15,7 @@ router
   .get(
     "/google/callback",
     passport.authenticate("google", {
-      failureRedirect: "http://localhost:3000/login",
+      failureRedirect: "https://study-management-web-app.onrender.com/login",
       session: false,
     }),
     authController.googleAuth

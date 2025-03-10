@@ -190,7 +190,7 @@ export function RegistrationForm({
           </span>
         </div>
         <a
-          href="http://localhost:5000/api/auth/google"
+           href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`}
           className="w-full flex flex-row gap-2 items-center justify-center border-[1px] border-black py-2 rounded"
         >
           <Image

@@ -1,6 +1,6 @@
 import axios from "axios";
 const nextBackendApi = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://study-management-web-app.onrender.com",
   headers: {
     Accept: "application/json",
   },
