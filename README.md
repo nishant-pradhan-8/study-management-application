@@ -15,7 +15,7 @@ The **Study Management App** is a web application built using the MERN stack (Mo
 - Responsive design for all devices
 
 ## 🛠️ Technologies Used
-- **Frontend:** Next.js (React.js, Tailwind CSS)
+- **Frontend:** Next.js, TypeScript (React.js, Tailwind CSS)
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB (Mongoose ODM)
 - **Image Storage:** FireBase
