@@ -203,10 +203,24 @@ const logoutUser = async (req, res) => {
       { $pull: { refreshToken: { deviceId } } }
     );
   
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.clearCookie('deviceId');
-    
+    res.clearCookie("accessToken", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    res.clearCookie("deviceId", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
     return res.status(200).json({
       status: "success",
       message: "User logged Out Successfully.",
@@ -268,9 +282,23 @@ const refresh = async (req, res) => {
         if (err) {
           await User.updateOne({ refreshToken }, { $pull:{refreshToken:{deviceRefreshToken}}});
 
-          res.clearCookie('accessToken');
-          res.clearCookie('refreshToken');
-          res.clearCookie('deviceId');
+             res.clearCookie("accessToken", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    res.clearCookie("deviceId", {
+      httpOnly: process.env.NODE_ENV !== "production",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
 
           if (err.name === "TokenExpiredError") {
             return res.status(401).json({
